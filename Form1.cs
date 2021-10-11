@@ -112,7 +112,7 @@ namespace Projekt1
                         {
                             if (this.currDrawingOption == DrawingOptions.Polygon)
                             {
-                                if (((Polygon)this.currShape).Completed)
+                                if (((Polygon)this.currShape).AlmostCompleted)
                                 {
                                     this.currShape.FinishDrawing(this.currPoint);
                                     this.currShape = null;

@@ -8,3 +8,12 @@ F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1
 F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.pdb
 F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.Form1.resources
 F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.csprojAssemblyReference.cache
+D:\Grafika\Projekt1\obj\Debug\Projekt1.exe
+D:\Grafika\Projekt1\obj\Debug\Projekt1.pdb
+D:\Grafika\Projekt1\bin\Debug\Projekt1.exe.config
+D:\Grafika\Projekt1\bin\Debug\Projekt1.exe
+D:\Grafika\Projekt1\bin\Debug\Projekt1.pdb
+D:\Grafika\Projekt1\obj\Debug\Projekt1.csprojAssemblyReference.cache
+D:\Grafika\Projekt1\obj\Debug\Projekt1.Form1.resources
+D:\Grafika\Projekt1\obj\Debug\Projekt1.Properties.Resources.resources
+D:\Grafika\Projekt1\obj\Debug\Projekt1.csproj.GenerateResource.cache

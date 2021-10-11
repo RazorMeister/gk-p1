@@ -26,6 +26,8 @@ namespace Projekt1
 
         private Point StartPoint => this.Vertices.First().Value;
 
+        public bool AlmostCompleted { get; private set; } = false;
+
         public Polygon(Point startPoint, Form form): base(form)
         {
             this.Lines = new Dictionary<int, Tuple<int, int>>();
@@ -37,17 +39,8 @@ namespace Projekt1
 
         public void AddLine(Point p)
         {
-            int newPointIndex = 1;
-
-            if (this.Completed)
-            {
-                p = this.StartPoint;
-            }
-            else
-            {
-                newPointIndex = this.Vertices.Last().Key + 1;
-                this.Vertices.Add(newPointIndex, p);
-            }
+            int newPointIndex = this.Vertices.Last().Key + 1;
+            this.Vertices.Add(newPointIndex, p);
 
             int firstPointIndex = this.Lines.Count == 0 ? 1 : this.Lines.Last().Value.Item2;
             int lineIndex = this.Lines.Count == 0 ? 1 : this.Lines.Last().Key + 1;
@@ -58,13 +51,16 @@ namespace Projekt1
         public override void UpdateLastPoint(Point p)
         {
             this.Vertices[this.Vertices.Count] = p;
-            this.Completed = this.Lines.Count > 2 && DrawHelper.PointsDistance(this.StartPoint, p) < 16;
+            this.AlmostCompleted = this.Lines.Count > 2 && DrawHelper.PointsDistance(this.StartPoint, p) < 16;
         }
 
         public override void FinishDrawing(Point p)
         {
-            if (this.Completed)
+            if (this.AlmostCompleted)
             {
+                this.Completed = true;
+                this.AlmostCompleted = false;
+
                 // Delete last vertex because is supposed to be StartPoint.
                 this.Vertices.Remove(this.Vertices.Count);
 
@@ -95,6 +91,25 @@ namespace Projekt1
 
         public override void Draw(Bitmap bm, PaintEventArgs e)
         {
+            if (this.Completed)
+                e.Graphics.FillPolygon(Brushes.AliceBlue, this.Vertices.Values.ToArray());
+
+            foreach (var vertex in this.Vertices)
+            {
+                Brush brush = this.selectObjectType == ObjectType.Vertex && this.selectedObjectIndex == vertex.Key
+                    ? Brushes.Red
+                    : Brushes.Black;
+
+                int radius = 5;
+
+                e.Graphics.FillEllipse(brush, new Rectangle(
+                    vertex.Value.X - radius,
+                    vertex.Value.Y - radius,
+                    radius + radius,
+                    radius + radius
+                ));
+            }
+
             foreach (var line in this.Lines)
             {
                 Color color = this.selectObjectType == ObjectType.Line && this.selectedObjectIndex == line.Key
@@ -103,23 +118,7 @@ namespace Projekt1
                 DrawHelper.DrawLine(bm, this.Vertices[line.Value.Item1], this.Vertices[line.Value.Item2], color);
             }
 
-
-            if (this.selectObjectType == ObjectType.Vertex && this.selectedObjectIndex != null)
-            {
-                var pen = new Pen(Color.Red, 1);
-                int radius = 5;
-                e.Graphics.DrawEllipse(
-                    pen, 
-                    this.Vertices[(int)this.selectedObjectIndex].X - radius,
-                    this.Vertices[(int)this.selectedObjectIndex].Y - radius,
-                    radius + radius, 
-                    radius + radius
-                );
-
-                pen.Dispose();
-            }
-
-            if (Completed)
+            if (this.Completed)
             {
                 Rectangle rect = new Rectangle(this.StartPoint.X - 3, this.StartPoint.Y - 3, 16, 16);
 
@@ -130,6 +129,19 @@ namespace Projekt1
                 var pen = new Pen(color, 1);
                 e.Graphics.DrawRectangle(pen, rect);
                 pen.Dispose();
+            }
+
+            if (this.AlmostCompleted)
+            {
+                Pen pen = new Pen(Color.Red, 1);
+
+                e.Graphics.DrawEllipse(
+                    pen,
+                    this.StartPoint.X - DrawHelper.DISTANCE,
+                    this.StartPoint.Y - DrawHelper.DISTANCE,
+                    DrawHelper.DISTANCE + DrawHelper.DISTANCE,
+                    DrawHelper.DISTANCE + DrawHelper.DISTANCE
+                );
             }
         }
 

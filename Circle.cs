@@ -47,6 +47,8 @@ namespace Projekt1
                 var pen = new Pen(this.selectedObjectIndex == 0 ? Color.Red : Color.Black, 1);
                 e.Graphics.DrawRectangle(pen, rect);
                 pen.Dispose();
+
+
             }
         }
 
