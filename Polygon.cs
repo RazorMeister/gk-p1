@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace Projekt1
 {
@@ -92,7 +93,13 @@ namespace Projekt1
         public override void Draw(Bitmap bm, PaintEventArgs e)
         {
             if (this.Completed)
-                e.Graphics.FillPolygon(Brushes.AliceBlue, this.Vertices.Values.ToArray());
+            {
+                Brush fillBrush = this.selectObjectType == ObjectType.Whole && this.selectedObjectIndex == 0
+                    ? Brushes.Red
+                    : Brushes.AliceBlue;
+
+                e.Graphics.FillPolygon(fillBrush, this.Vertices.Values.ToArray());
+            }
 
             foreach (var vertex in this.Vertices)
             {
@@ -116,19 +123,6 @@ namespace Projekt1
                     ? Color.Red
                     : Color.Black;
                 DrawHelper.DrawLine(bm, this.Vertices[line.Value.Item1], this.Vertices[line.Value.Item2], color);
-            }
-
-            if (this.Completed)
-            {
-                Rectangle rect = new Rectangle(this.StartPoint.X - 3, this.StartPoint.Y - 3, 16, 16);
-
-                Color color = this.selectObjectType == ObjectType.Whole && this.selectedObjectIndex == 0
-                    ? Color.Red
-                    : Color.Black;
-
-                var pen = new Pen(color, 1);
-                e.Graphics.DrawRectangle(pen, rect);
-                pen.Dispose();
             }
 
             if (this.AlmostCompleted)
@@ -171,7 +165,10 @@ namespace Projekt1
             }
             else if (key == Keys.Shift)
             {
-                if (DrawHelper.PointsDistance(this.StartPoint, p) < DrawHelper.DISTANCE)
+                var polygon = new GraphicsPath();
+                polygon.AddPolygon(this.Vertices.Values.ToArray());
+
+                if (polygon.IsVisible(p))
                     return 0;
             }
 
@@ -208,8 +205,8 @@ namespace Projekt1
 
                     break;
                 case ObjectType.Whole:
-                    int dXw = p.X - this.StartPoint.X;
-                    int dYw = p.Y - this.StartPoint.Y;
+                    int dXw = p.X - this.lastMovingPoint.X;
+                    int dYw = p.Y - this.lastMovingPoint.Y;
 
                     Dictionary<int, Point> newVertices = new Dictionary<int, Point>();
 
@@ -220,6 +217,60 @@ namespace Projekt1
 
                     break;
             }
+
+            base.UpdateMoving(p);
+        }
+
+        public void AddVertexOnLine()
+        {
+            if (this.selectObjectType != ObjectType.Line) return;
+
+            var currentLine = this.Lines[(int)this.selectedObjectIndex];
+            var vertexA = this.Vertices[currentLine.Item1];
+            var vertexB = this.Vertices[currentLine.Item2];
+
+            Point newVertex = new Point((vertexA.X + vertexB.X) / 2, (vertexA.Y + vertexB.Y) / 2);
+
+
+            Dictionary<int, Point> newVertices = new Dictionary<int, Point>();
+
+            foreach (var vertex in this.Vertices)
+            {
+                if (vertex.Key > currentLine.Item1) newVertices.Add(vertex.Key + 1, vertex.Value);
+                if (vertex.Key <= currentLine.Item1) newVertices.Add(vertex.Key, vertex.Value);
+            }
+
+            newVertices.Add(currentLine.Item1 + 1, newVertex);
+
+            Dictionary<int, Tuple<int, int>> newLines = new Dictionary<int, Tuple<int, int>>();
+
+            foreach (var line in this.Lines)
+            {
+                if (line.Key > this.selectedObjectIndex) newLines.Add(line.Key + 1, line.Value);
+                if (line.Key <= this.selectedObjectIndex) newLines.Add(line.Key, line.Value);
+            }
+        }
+
+        public void RemoveCurrentVertex()
+        {
+            if (this.selectObjectType != ObjectType.Vertex || this.Lines.Count <= 3) return;
+
+            Dictionary<int, Point> newVertices = new Dictionary<int, Point>();
+
+            foreach (var vertex in this.Vertices)
+            {
+                if (vertex.Key > this.selectedObjectIndex) newVertices.Add(vertex.Key - 1, vertex.Value);
+                if (vertex.Key < this.selectedObjectIndex) newVertices.Add(vertex.Key, vertex.Value);
+            }
+
+            // Save new vertices
+            this.Vertices = newVertices;
+
+            // Delete last line (it doesnt matter which one)
+            this.Lines.Remove(this.Lines.Count);
+            this.Lines[this.Lines.Count] = new Tuple<int, int>(this.Lines.Last().Value.Item1, 1);
+
+            this.DeselectObject();
         }
 
         public override string ToString()
@@ -228,10 +279,23 @@ namespace Projekt1
 
             if (this.selectedObjectIndex != null)
             {
-                if (this.selectObjectType == ObjectType.Vertex)
-                    text +=
-                        $" | Selected vertex: ({this.Vertices[(int) this.selectedObjectIndex].X}, {this.Vertices[(int) this.selectedObjectIndex].X})";
-            }
+                switch (this.selectObjectType)
+                {
+                    case ObjectType.Vertex:
+                        text +=
+                        $" | Selected vertex: ({this.Vertices[(int)this.selectedObjectIndex].X}, {this.Vertices[(int)this.selectedObjectIndex].Y})";
+                        break;
+                    case ObjectType.Line:
+                        var line = this.Lines[(int)this.selectedObjectIndex];
+                        text +=
+                        $" | Selected edge: ({this.Vertices[line.Item1].X}, {this.Vertices[line.Item1].Y}), ({this.Vertices[line.Item2].X}, {this.Vertices[line.Item2].Y})";
+                        break;
+                    case ObjectType.Whole:
+                        text +=
+                        $" | Selected polygon";
+                        break;
+                }
+             }
 
             return text;
         }

@@ -43,12 +43,16 @@ namespace Projekt1
 
             if (Completed)
             {
-                Rectangle rect = new Rectangle(this._startPoint.X - 3, this._startPoint.Y - 3, 16, 16);
-                var pen = new Pen(this.selectedObjectIndex == 0 ? Color.Red : Color.Black, 1);
-                e.Graphics.DrawRectangle(pen, rect);
-                pen.Dispose();
+                Brush fillBrush = this.selectedObjectIndex == 0
+                     ? Brushes.Red
+                     : Brushes.AliceBlue;
 
-
+                e.Graphics.FillEllipse(fillBrush, new Rectangle(
+                    this._startPoint.X - this._r,
+                    this._startPoint.Y - this._r,
+                    this._r + this._r,
+                    this._r + this._r
+                ));
             }
         }
 
@@ -56,7 +60,7 @@ namespace Projekt1
         {
             if (key == Keys.Control && DrawHelper.PointsDistance(p, this._startPoint) - this._r < DrawHelper.DISTANCE)
                 return 1; 
-            if (key == Keys.Shift && DrawHelper.PointsDistance(p, this._startPoint) < DrawHelper.DISTANCE)
+            if (key == Keys.Shift && DrawHelper.PointsDistance(p, this._startPoint) <= this._r)
                 return 0;
 
             return null;
@@ -66,13 +70,15 @@ namespace Projekt1
         {
             if (this.selectedObjectIndex == 0)
             {
-                int dX = p.X - this._startPoint.X;
-                int dY = p.Y - this._startPoint.Y;
+                int dX = p.X - this.lastMovingPoint.X;
+                int dY = p.Y - this.lastMovingPoint.Y;
 
                 this._startPoint = new Point(this._startPoint.X + dX, this._startPoint.Y + dY);
             }
             else
                 this._r = (int)DrawHelper.PointsDistance(this._startPoint, p);
+
+            base.UpdateMoving(p);
         }
 
         public override string ToString()

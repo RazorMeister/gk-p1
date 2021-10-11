@@ -14,6 +14,7 @@ namespace Projekt1
 
         protected int? selectedObjectIndex = null;
         protected bool isMoving = false;
+        protected Point lastMovingPoint;
 
         protected readonly Form _form;
         protected Shape(Form form)
@@ -35,8 +36,12 @@ namespace Projekt1
 
         /* Moving */
         public abstract int? GetNearestPoint(Point p, Keys key);
-        public virtual void StartMoving() => this.isMoving = true;
-        public abstract void UpdateMoving(Point p);
+        public virtual void StartMoving(Point p)
+        {
+            this.isMoving = true;
+            this.lastMovingPoint = p;
+        }
+        public virtual void UpdateMoving(Point p) => this.lastMovingPoint = p;
         public virtual void FinishMoving() => this.isMoving = false;
     }
 }

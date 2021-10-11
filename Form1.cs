@@ -194,7 +194,7 @@ namespace Projekt1
             )
             {
                 this.action = Action.Moving;
-                this.currShape.StartMoving();
+                this.currShape.StartMoving(e.Location);
                 this.wrapper.Cursor = Cursors.Hand;
             }
         }
@@ -210,7 +210,7 @@ namespace Projekt1
 
             this.shapes.ForEach(shape => shape.Draw(bm, e));
 
-            this.label2.Text = this.currShape != null ? this.currShape.ToString() : "";
+            this.debugLabel.Text = this.currShape != null ? this.currShape.ToString() : "";
 
             e.Graphics.DrawImage(bm, 0, 0);
         }
@@ -246,6 +246,36 @@ namespace Projekt1
             this.currShape = null;
             this.action = Action.None;
             this.wrapper.Invalidate();
+        }
+
+        private void addVertexBtn_Click(object sender, EventArgs e)
+        {
+            if (this.currShape != null && this.currShape is Polygon)
+            {
+                ((Polygon)this.currShape).AddVertexOnLine();
+                this.wrapper.Invalidate();
+            }
+        }
+
+        private void removeVertexBtn_Click(object sender, EventArgs e)
+        {
+            if (this.currShape != null && this.currShape is Polygon)
+            {
+                ((Polygon)this.currShape).RemoveCurrentVertex();
+                this.wrapper.Invalidate();
+            }
+        }
+
+        private void removeShapeBtn_Click(object sender, EventArgs e)
+        {
+            if (this.currShape != null)
+            {
+                this.currShape.Destroy();
+                this.shapes.Remove(this.currShape);
+                this.currShape = null;
+                this.action = Action.None;
+                this.wrapper.Invalidate();
+            }
         }
     }
 }
