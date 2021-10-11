@@ -1,0 +1,10 @@
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\bin\Debug\Projekt1.exe.config
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\bin\Debug\Projekt1.exe
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\bin\Debug\Projekt1.pdb
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.Properties.Resources.resources
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.csproj.GenerateResource.cache
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.csproj.CoreCompileInputs.cache
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.exe
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.pdb
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.Form1.resources
+F:\Edukacja\Studia\Sem 5\GrafikaKomputerowa\Projekty\Projekt1\obj\Debug\Projekt1.csprojAssemblyReference.cache
