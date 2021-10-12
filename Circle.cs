@@ -32,9 +32,8 @@ namespace Projekt1
 
         public override bool IsNearSelectedObjectIndex(Point p)
         {
-            if (this.selectedObjectIndex == 1 || this.selectedObjectIndex == 0) return this.GetNearestPoint(p) != null;
-            //if (this.selectedObjectIndex == 0) return this.GetNearestPoint(p, Keys.Shift) != null;
-            return false;
+            if (this.selectedObjectIndex == null) return false;
+            return this.GetNearestPoint(p) == this.selectedObjectIndex;
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)
@@ -59,7 +58,9 @@ namespace Projekt1
         public override int? GetNearestPoint(Point p)
         {
             // Edge clicked
-            if (DrawHelper.PointsDistance(p, this._startPoint) - this._r < DrawHelper.DISTANCE)
+            var distance = DrawHelper.PointsDistance(p, this._startPoint) - this._r;
+            Debug.WriteLine(distance);
+            if (distance >= -DrawHelper.DISTANCE && distance <= DrawHelper.DISTANCE)
                 return 1; 
 
             // Whole circle clicked

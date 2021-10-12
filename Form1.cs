@@ -49,14 +49,11 @@ namespace Projekt1
 
         private void wrapper_MouseClick(object sender, MouseEventArgs e)
         {
-            Keys? pressedKey = null;
-
-            if ((ModifierKeys & Keys.Control) == Keys.Control) pressedKey = Keys.Control;
-            else if ((ModifierKeys & Keys.Shift) == Keys.Shift) pressedKey = Keys.Shift;
-
             switch (this.action)
             {
                 case Action.None:
+                    if (e.Button != MouseButtons.Left) break;
+
                     this.action = Action.Drawing;
                     this.currPoint = e.Location;
 
@@ -83,28 +80,25 @@ namespace Projekt1
                         this.shapes.Remove(this.currShape);
                         this.currShape = null;
                         this.action = Action.None;
+                        break;
                     }
-                    else
+
+                    if (this.currDrawingOption == DrawingOptions.Polygon)
                     {
-                        if (this.currDrawingOption == DrawingOptions.Polygon)
-                        {
-                            if (((Polygon)this.currShape).AlmostCompleted)
-                            {
-                                this.currShape.FinishDrawing(this.currPoint);
-                                this.currShape = null;
-                                this.action = Action.None;
-                            }
-                            else
-                            {
-                                ((Polygon)this.currShape).AddLine(this.currPoint);
-                            }
-                        }
-                        else if (this.currDrawingOption == DrawingOptions.Circle)
+                        if (((Polygon)this.currShape).AlmostCompleted)
                         {
                             this.currShape.FinishDrawing(this.currPoint);
                             this.currShape = null;
                             this.action = Action.None;
                         }
+                        else
+                            ((Polygon)this.currShape).AddLine(this.currPoint);
+                    }
+                    else if (this.currDrawingOption == DrawingOptions.Circle)
+                    {
+                        this.currShape.FinishDrawing(this.currPoint);
+                        this.currShape = null;
+                        this.action = Action.None;
                     }
 
                     break;
@@ -137,8 +131,6 @@ namespace Projekt1
         }
         private void wrapper_MouseMove(object sender, MouseEventArgs e)
         {
-            if (this.action == Action.None) return;
-
             this.currPoint = e.Location;
 
             switch (this.action)
@@ -149,6 +141,26 @@ namespace Projekt1
                 case Action.Drawing:
                     this.currShape.UpdateLastPoint(this.currPoint);
                     break;
+                case Action.None:
+                case Action.Selecting:
+                    bool indexFound = false;
+
+                    foreach (var shape in this.shapes)
+                    {
+                        int? index = shape.GetNearestPoint(e.Location);
+
+                        if (index != null)
+                        {
+                            indexFound = true;
+                            this.wrapper.Cursor = Cursors.Hand;
+                            break;
+                        }
+                    }
+
+                    if (!indexFound)
+                        this.wrapper.Cursor = Cursors.Default;
+
+                    break;
             }
 
             this.wrapper.Invalidate();
@@ -156,23 +168,21 @@ namespace Projekt1
 
         private void wrapper_MouseDown(object sender, MouseEventArgs e)
         {
-            Keys? pressedKey = null;
-
-            if ((ModifierKeys & Keys.Control) == Keys.Control) pressedKey = Keys.Control;
-            else if ((ModifierKeys & Keys.Shift) == Keys.Shift) pressedKey = Keys.Shift;
-
-            if (
-                e.Button == MouseButtons.Left
-                && this.action == Action.Selecting
-                && this.currShape.IsNearSelectedObjectIndex(e.Location)
-            )
+            if (this.action == Action.Selecting)
             {
-                this.action = Action.Moving;
-                this.currShape.StartMoving(e.Location);
-                this.wrapper.Cursor = Cursors.Hand;
+                if (e.Button == MouseButtons.Left && this.currShape.IsNearSelectedObjectIndex(e.Location))
+                {
+                    this.action = Action.Moving;
+                    this.currShape.StartMoving(e.Location);
+                    this.wrapper.Cursor = Cursors.Hand;
+                }
+                else
+                {
+                    this.action = Action.None;
+                    this.currShape.DeselectObject();
+                    this.currShape = null;
+                }
             }
-            else
-                this.action = Action.None;
 
             if (this.action == Action.None)
             {
