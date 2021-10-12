@@ -142,36 +142,40 @@ namespace Projekt1
         public override bool IsNearSelectedObjectIndex(Point p)
         {
             if (this.selectedObjectIndex == null) return false;
-            if (this.selectObjectType == ObjectType.Whole) return this.GetNearestPoint(p, Keys.Shift) != null;
-            return this.GetNearestPoint(p, Keys.Control) != null;
+
+            var nearestIndex = this.GetNearestPoint(p);
+
+            if (this.selectObjectType == ObjectType.Whole && nearestIndex == 0) return true;
+            if (this.selectObjectType == ObjectType.Line && nearestIndex == -this.selectedObjectIndex) return true;
+            if (this.selectObjectType == ObjectType.Vertex && nearestIndex == this.selectedObjectIndex) return true;
+
+            return false;
         }
 
-        public override int? GetNearestPoint(Point p, Keys key) // Function is returning <distance, objectId>
+        public override int? GetNearestPoint(Point p)
         {
-            if (key == Keys.Control)
+            // Vertex clicked
+            foreach (var vertex in this.Vertices)
+                if (DrawHelper.PointsDistance(p, vertex.Value) < DrawHelper.DISTANCE)
+                    return vertex.Key;
+
+            // Edge clicked
+            foreach (var line in this.Lines)
             {
-                foreach (var vertex in this.Vertices)
-                    if (DrawHelper.PointsDistance(p, vertex.Value) < DrawHelper.DISTANCE)
-                        return vertex.Key;
+                var centerPoint = DrawHelper.CenterPoint(this.Vertices[line.Value.Item1], this.Vertices[line.Value.Item2]);
 
-                foreach (var line in this.Lines)
-                {
-                    var centerPoint = DrawHelper.CenterPoint(this.Vertices[line.Value.Item1], this.Vertices[line.Value.Item2]);
+                if (DrawHelper.PointsDistance(p, centerPoint) < DrawHelper.DISTANCE)
+                    return -line.Key;
 
-                    if (DrawHelper.PointsDistance(p, centerPoint) < DrawHelper.DISTANCE)
-                        return -line.Key;
-
-                }
-            }
-            else if (key == Keys.Shift)
-            {
-                var polygon = new GraphicsPath();
-                polygon.AddPolygon(this.Vertices.Values.ToArray());
-
-                if (polygon.IsVisible(p))
-                    return 0;
             }
 
+            // Detect is whole polygon is clicked
+            var polygon = new GraphicsPath();
+            polygon.AddPolygon(this.Vertices.Values.ToArray());
+
+            if (polygon.IsVisible(p))
+                return 0;
+           
             return null;
         }
 

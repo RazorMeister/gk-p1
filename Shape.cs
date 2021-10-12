@@ -35,7 +35,7 @@ namespace Projekt1
         public virtual void DeselectObject() => this.selectedObjectIndex = null;
 
         /* Moving */
-        public abstract int? GetNearestPoint(Point p, Keys key);
+        public abstract int? GetNearestPoint(Point p);
         public virtual void StartMoving(Point p)
         {
             this.isMoving = true;

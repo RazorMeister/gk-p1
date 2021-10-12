@@ -54,95 +54,70 @@ namespace Projekt1
             if ((ModifierKeys & Keys.Control) == Keys.Control) pressedKey = Keys.Control;
             else if ((ModifierKeys & Keys.Shift) == Keys.Shift) pressedKey = Keys.Shift;
 
-            if (pressedKey != null && this.action != Action.Drawing)
+            switch (this.action)
             {
-                if (this.action == Action.Selecting)
-                    this.currShape.DeselectObject();
+                case Action.None:
+                    this.action = Action.Drawing;
+                    this.currPoint = e.Location;
 
-                this.action = Action.Selecting;
-
-                foreach (var shape in this.shapes)
-                {
-                    int? index = shape.GetNearestPoint(e.Location, (Keys)pressedKey);
-
-                    if (index != null)
+                    if (this.currDrawingOption == DrawingOptions.Polygon)
                     {
-                        this.currShape = shape;
-                        this.currShape.SelectObject((int)index);
-                        break;
+                        Polygon newPolygon = new Polygon(this.currPoint, this);
+                        newPolygon.AddLine(this.currPoint);
+
+                        this.currShape = newPolygon;
+                        this.shapes.Add(this.currShape);
                     }
-                }
+                    else if (this.currDrawingOption == DrawingOptions.Circle)
+                    {
+                        this.currShape = new Circle(this.currPoint, this);
+                        this.shapes.Add(this.currShape);
+                    }
 
-                if (this.currShape == null)
-                    this.action = Action.None;
-            }
-            else
-            {
-                switch (this.action)
-                {
-                    case Action.None:
-                        this.action = Action.Drawing;
-                        this.currPoint = e.Location;
+                    break;
 
+                case Action.Drawing:
+                    if (e.Button != MouseButtons.Left)
+                    {
+                        this.currShape.Destroy();
+                        this.shapes.Remove(this.currShape);
+                        this.currShape = null;
+                        this.action = Action.None;
+                    }
+                    else
+                    {
                         if (this.currDrawingOption == DrawingOptions.Polygon)
                         {
-                            Polygon newPolygon = new Polygon(this.currPoint, this);
-                            newPolygon.AddLine(this.currPoint);
-
-                            this.currShape = newPolygon;
-                            this.shapes.Add(this.currShape);
-                        }
-                        else if (this.currDrawingOption == DrawingOptions.Circle)
-                        {
-                            this.currShape = new Circle(this.currPoint, this);
-                            this.shapes.Add(this.currShape);
-                        }
-
-                        break;
-
-                    case Action.Drawing:
-                        if (e.Button != MouseButtons.Left)
-                        {
-                            this.currShape.Destroy();
-                            this.shapes.Remove(this.currShape);
-                            this.currShape = null;
-                            this.action = Action.None;
-                        }
-                        else
-                        {
-                            if (this.currDrawingOption == DrawingOptions.Polygon)
-                            {
-                                if (((Polygon)this.currShape).AlmostCompleted)
-                                {
-                                    this.currShape.FinishDrawing(this.currPoint);
-                                    this.currShape = null;
-                                    this.action = Action.None;
-                                }
-                                else
-                                {
-                                    ((Polygon)this.currShape).AddLine(this.currPoint);
-                                }
-                            }
-                            else if (this.currDrawingOption == DrawingOptions.Circle)
+                            if (((Polygon)this.currShape).AlmostCompleted)
                             {
                                 this.currShape.FinishDrawing(this.currPoint);
                                 this.currShape = null;
                                 this.action = Action.None;
                             }
+                            else
+                            {
+                                ((Polygon)this.currShape).AddLine(this.currPoint);
+                            }
                         }
-
-                        break;
-
-                    case Action.Selecting:
-                        if (e.Button != MouseButtons.Left)
+                        else if (this.currDrawingOption == DrawingOptions.Circle)
                         {
-                            this.currShape.DeselectObject();
+                            this.currShape.FinishDrawing(this.currPoint);
                             this.currShape = null;
                             this.action = Action.None;
                         }
+                    }
 
-                        break;
-                }
+                    break;
+
+                case Action.Selecting:
+                    if (e.Button != MouseButtons.Left)
+                    {
+                        this.currShape.DeselectObject();
+                        this.currShape = null;
+                        this.action = Action.None;
+                    }
+
+                    break;
             }
 
             this.wrapper.Invalidate();
@@ -187,15 +162,34 @@ namespace Projekt1
             else if ((ModifierKeys & Keys.Shift) == Keys.Shift) pressedKey = Keys.Shift;
 
             if (
-                pressedKey == null 
-                && e.Button == MouseButtons.Left
-                && this.action == Action.Selecting 
+                e.Button == MouseButtons.Left
+                && this.action == Action.Selecting
                 && this.currShape.IsNearSelectedObjectIndex(e.Location)
             )
             {
                 this.action = Action.Moving;
                 this.currShape.StartMoving(e.Location);
                 this.wrapper.Cursor = Cursors.Hand;
+            }
+            else
+                this.action = Action.None;
+
+            if (this.action == Action.None)
+            {
+                foreach (var shape in this.shapes)
+                {
+                    int? index = shape.GetNearestPoint(e.Location);
+
+                    if (index != null)
+                    {
+                        this.currShape = shape;
+                        this.currShape.SelectObject((int)index);
+                        this.action = Action.Moving;
+                        this.currShape.StartMoving(e.Location);
+                        this.wrapper.Cursor = Cursors.Hand;
+                        break;
+                    }
+                }
             }
         }
 
