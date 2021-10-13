@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Projekt1
+namespace Projekt1.Shapes
 {
     class Circle: Shape
     {
         private Point _startPoint;
-        private int _r = 0;
+        public int R { get; private set; }
 
         public Circle(Point startPoint, Form form): base(form)
         {
@@ -22,7 +16,12 @@ namespace Projekt1
 
         public override void UpdateLastPoint(Point p)
         {
-            this._r = (int) DrawHelper.PointsDistance(p, this._startPoint);
+            this.R = (int) DrawHelper.PointsDistance(p, this._startPoint);
+        }
+
+        public void SetR(int r)
+        {
+            this.R = r;
         }
 
         public override void FinishDrawing(Point p)
@@ -32,25 +31,25 @@ namespace Projekt1
 
         public override bool IsNearSelectedObjectIndex(Point p)
         {
-            if (this.selectedObjectIndex == null) return false;
-            return this.GetNearestPoint(p) == this.selectedObjectIndex;
+            if (this.SelectedObjectIndex == null) return false;
+            return this.GetNearestPoint(p) == this.SelectedObjectIndex;
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)
         {
-            DrawHelper.DrawCircle(bm, this._startPoint, this._r, this.selectedObjectIndex == 1 ? Color.Red : Color.Black);
+            DrawHelper.DrawCircle(bm, this._startPoint, this.R, this.SelectedObjectIndex == 1 ? Color.Red : Color.Black);
 
             if (Completed)
             {
-                Brush fillBrush = this.selectedObjectIndex == 0
+                Brush fillBrush = this.SelectedObjectIndex == 0
                      ? Brushes.Red
                      : Brushes.AliceBlue;
 
                 e.Graphics.FillEllipse(fillBrush, new Rectangle(
-                    this._startPoint.X - this._r,
-                    this._startPoint.Y - this._r,
-                    this._r + this._r,
-                    this._r + this._r
+                    this._startPoint.X - this.R,
+                    this._startPoint.Y - this.R,
+                    this.R + this.R,
+                    this.R + this.R
                 ));
             }
         }
@@ -58,13 +57,12 @@ namespace Projekt1
         public override int? GetNearestPoint(Point p)
         {
             // Edge clicked
-            var distance = DrawHelper.PointsDistance(p, this._startPoint) - this._r;
-            Debug.WriteLine(distance);
+            var distance = DrawHelper.PointsDistance(p, this._startPoint) - this.R;
             if (distance >= -DrawHelper.DISTANCE && distance <= DrawHelper.DISTANCE)
                 return 1; 
 
             // Whole circle clicked
-            if (DrawHelper.PointsDistance(p, this._startPoint) <= this._r)
+            if (DrawHelper.PointsDistance(p, this._startPoint) <= this.R)
                 return 0;
 
             return null;
@@ -72,7 +70,9 @@ namespace Projekt1
 
         public override void UpdateMoving(Point p)
         {
-            if (this.selectedObjectIndex == 0)
+            if (!this.CanMakeMove()) return;
+
+            if (this.SelectedObjectIndex == 0)
             {
                 int dX = p.X - this.lastMovingPoint.X;
                 int dY = p.Y - this.lastMovingPoint.Y;
@@ -80,14 +80,14 @@ namespace Projekt1
                 this._startPoint = new Point(this._startPoint.X + dX, this._startPoint.Y + dY);
             }
             else
-                this._r = (int)DrawHelper.PointsDistance(this._startPoint, p);
+                this.R = (int)DrawHelper.PointsDistance(this._startPoint, p);
 
             base.UpdateMoving(p);
         }
 
         public override string ToString()
         {
-            return $"Circle - startPoint ({this._startPoint.X}, {this._startPoint.Y}) | r = {this._r}";
+            return $"Circle - startPoint ({this._startPoint.X}, {this._startPoint.Y}) | r = {this.R}" + this.GetRelationsString();
         }
     }
 }

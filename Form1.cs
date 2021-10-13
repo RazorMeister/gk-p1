@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Projekt1.Properties;
+using Projekt1.Relations;
+using Projekt1.Shapes;
 
 namespace Projekt1
 {
@@ -31,6 +26,57 @@ namespace Projekt1
 
         private Action action = Action.None;
 
+        private Action currAction
+        {
+            get => this.action;
+
+            set
+            {
+                if (this.action == Action.Selecting && value != Action.Moving)
+                {
+                    this.currShape.DeselectObject();
+                    this.currShape = null;
+                }
+
+                if (value == Action.None)
+                {
+                    this.currShape = null;
+                }
+
+                this.action = value;
+                this.label1.Text = value.ToString();
+
+                switch (this.action)
+                {
+                    case Action.None:
+                        this.changeButtonsEnabled(drawPolygon: true, drawCircle: true);
+                        break;
+                    case Action.Drawing:
+                        this.changeButtonsEnabled();
+                        break;
+                    case Action.Selecting:
+                        this.changeButtonsEnabled(
+                            drawPolygon: true, 
+                            drawCircle: true,
+                            addVertex: this.currShape.GetType() == typeof(Polygon)
+                                       && ((Polygon)this.currShape).SelectObjectType == Polygon.ObjectType.Line,
+                            removeVertex: this.currShape.GetType() == typeof(Polygon)
+                                          && ((Polygon)this.currShape).SelectObjectType == Polygon.ObjectType.Vertex,
+                            removeShape: true,
+                            anchorCircle: this.currShape.GetType() == typeof(Circle),
+                            fixedRadius: this.currShape.GetType() == typeof(Circle),
+                            fixedEdge: this.currShape.GetType() == typeof(Polygon)
+                                       && ((Polygon)this.currShape).SelectObjectType == Polygon.ObjectType.Line
+                        );
+
+                        break;
+                    case Action.Moving:
+                        this.changeButtonsEnabled();
+                        break;
+                }
+            }
+        }
+
         private Point currPoint;
 
         private DrawingOptions currDrawingOption = DrawingOptions.Polygon;
@@ -45,16 +91,17 @@ namespace Projekt1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.currAction = Action.None;
         }
 
         private void wrapper_MouseClick(object sender, MouseEventArgs e)
         {
-            switch (this.action)
+            switch (this.currAction)
             {
                 case Action.None:
                     if (e.Button != MouseButtons.Left) break;
 
-                    this.action = Action.Drawing;
+                    this.currAction = Action.Drawing;
                     this.currPoint = e.Location;
 
                     if (this.currDrawingOption == DrawingOptions.Polygon)
@@ -78,8 +125,7 @@ namespace Projekt1
                     {
                         this.currShape.Destroy();
                         this.shapes.Remove(this.currShape);
-                        this.currShape = null;
-                        this.action = Action.None;
+                        this.currAction = Action.None;
                         break;
                     }
 
@@ -88,8 +134,7 @@ namespace Projekt1
                         if (((Polygon)this.currShape).AlmostCompleted)
                         {
                             this.currShape.FinishDrawing(this.currPoint);
-                            this.currShape = null;
-                            this.action = Action.None;
+                            this.currAction = Action.None;
                         }
                         else
                             ((Polygon)this.currShape).AddLine(this.currPoint);
@@ -97,7 +142,6 @@ namespace Projekt1
                     else if (this.currDrawingOption == DrawingOptions.Circle)
                     {
                         this.currShape.FinishDrawing(this.currPoint);
-                        this.currShape = null;
                         this.action = Action.None;
                     }
 
@@ -106,9 +150,7 @@ namespace Projekt1
                 case Action.Selecting:
                     if (e.Button != MouseButtons.Left)
                     {
-                        this.currShape.DeselectObject();
-                        this.currShape = null;
-                        this.action = Action.None;
+                        this.currAction = Action.None;
                     }
 
                     break;
@@ -123,7 +165,7 @@ namespace Projekt1
             {
                 case Action.Moving:
                     this.currShape.FinishMoving();
-                    this.action = Action.Selecting;
+                    this.currAction = Action.Selecting;
                     this.wrapper.Cursor = Cursors.Default;
                     break;
 
@@ -133,7 +175,7 @@ namespace Projekt1
         {
             this.currPoint = e.Location;
 
-            switch (this.action)
+            switch (this.currAction)
             {
                 case Action.Moving:
                     this.currShape.UpdateMoving(this.currPoint);
@@ -145,7 +187,7 @@ namespace Projekt1
                 case Action.Selecting:
                     bool indexFound = false;
 
-                    foreach (var shape in this.shapes)
+                    foreach (var shape in this.shapes.AsEnumerable().Reverse())
                     {
                         int? index = shape.GetNearestPoint(e.Location);
 
@@ -168,25 +210,23 @@ namespace Projekt1
 
         private void wrapper_MouseDown(object sender, MouseEventArgs e)
         {
-            if (this.action == Action.Selecting)
+            if (this.currAction == Action.Selecting)
             {
                 if (e.Button == MouseButtons.Left && this.currShape.IsNearSelectedObjectIndex(e.Location))
                 {
-                    this.action = Action.Moving;
+                    this.currAction = Action.Moving;
                     this.currShape.StartMoving(e.Location);
                     this.wrapper.Cursor = Cursors.Hand;
                 }
                 else
                 {
-                    this.action = Action.None;
-                    this.currShape.DeselectObject();
-                    this.currShape = null;
+                    this.currAction = Action.None;
                 }
             }
 
-            if (this.action == Action.None)
+            if (this.currAction == Action.None)
             {
-                foreach (var shape in this.shapes)
+                foreach (var shape in this.shapes.AsEnumerable().Reverse())
                 {
                     int? index = shape.GetNearestPoint(e.Location);
 
@@ -194,7 +234,7 @@ namespace Projekt1
                     {
                         this.currShape = shape;
                         this.currShape.SelectObject((int)index);
-                        this.action = Action.Moving;
+                        this.currAction = Action.Moving;
                         this.currShape.StartMoving(e.Location);
                         this.wrapper.Cursor = Cursors.Hand;
                         break;
@@ -222,23 +262,15 @@ namespace Projekt1
         private void polygonBtn_Click(object sender, EventArgs e)
         {
             this.currDrawingOption = DrawingOptions.Polygon;
-
-            if (this.action == Action.Selecting && this.currShape != null)
-                this.currShape.DeselectObject();
-
-            this.currShape = null;
-            this.action = Action.None;
+            this.currAction = Action.None;
+            this.wrapper.Invalidate();
         }
 
         private void circleBtn_Click(object sender, EventArgs e)
         {
             this.currDrawingOption = DrawingOptions.Circle;
-
-            if (this.action == Action.Selecting && this.currShape != null)
-                this.currShape.DeselectObject();
-
-            this.currShape = null;
-            this.action = Action.None;
+            this.currAction = Action.None;
+            this.wrapper.Invalidate();
         }
 
         private void ClearForm()
@@ -247,8 +279,7 @@ namespace Projekt1
                 shape.Destroy();
 
             this.shapes.Clear();
-            this.currShape = null;
-            this.action = Action.None;
+            this.currAction = Action.None;
             this.wrapper.Invalidate();
         }
 
@@ -276,10 +307,76 @@ namespace Projekt1
             {
                 this.currShape.Destroy();
                 this.shapes.Remove(this.currShape);
-                this.currShape = null;
-                this.action = Action.None;
+                this.currAction = Action.None;
                 this.wrapper.Invalidate();
             }
+        }
+
+        private void changeButtonsEnabled(
+            bool drawPolygon = false,
+            bool drawCircle = false,
+            bool addVertex = false,
+            bool removeVertex = false,
+            bool removeShape = false,
+            bool anchorCircle = false,
+            bool fixedRadius = false,
+            bool fixedEdge = false
+        )
+        {
+            this.polygonBtn.Enabled = drawPolygon;
+            this.circleBtn.Enabled = drawCircle;
+            this.addVertexBtn.Enabled = addVertex;
+            this.removeVertexBtn.Enabled = removeVertex;
+            this.removeShapeBtn.Enabled = removeShape;
+            this.anchorCircleBtn.Enabled = anchorCircle;
+            this.fixedRadiusBtn.Enabled = fixedRadius;
+            this.fixedEdgeBtn.Enabled = fixedEdge;
+        }
+
+        private void anchorCircleBtn_Click(object sender, EventArgs e)
+        {
+            if (!this.currShape.HasRelation(typeof(AnchorCircle)))
+                this.currShape.AddRelation(new AnchorCircle((Circle) this.currShape));
+            else
+                this.currShape.RemoveRelation(typeof(AnchorCircle));
+        }
+
+        private void fixedRadiusBtn_Click(object sender, EventArgs e)
+        {
+            if (!this.currShape.HasRelation(typeof(FixedRadius)))
+            {
+                using (Prompt prompt = new Prompt("text", "caption", ((Circle)this.currShape).R.ToString()))
+                {
+                    string result = prompt.Result;
+
+                    if (result != "")
+                        this.currShape.AddRelation(new FixedRadius((Circle)this.currShape, Int32.Parse(result)));
+                }
+            }
+            else
+                this.currShape.RemoveRelation(typeof(FixedRadius));
+
+            this.wrapper.Invalidate();
+        }
+
+        private void fixedEdgeBtn_Click(object sender, EventArgs e)
+        {
+            if (!this.currShape.HasRelation(typeof(FixedEdge)))
+            {
+                using (Prompt prompt = new Prompt("text", "caption", ((Polygon)this.currShape).GetLineLength((int)this.currShape.SelectedObjectIndex).ToString()))
+                {
+                    string result = prompt.Result;
+
+                    if (result != "")
+                        this.currShape.AddRelation(
+                            new FixedEdge((Polygon)this.currShape, (int)this.currShape.SelectedObjectIndex, Int32.Parse(result))
+                        );
+                }
+            }
+            else
+                this.currShape.RemoveRelation(typeof(FixedEdge));
+
+            this.wrapper.Invalidate();
         }
     }
 }

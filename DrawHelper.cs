@@ -152,6 +152,25 @@ namespace Projekt1
             bm.SetPixel(x, y, color);
         }
 
+        public static double EdgeDistance(Point p, Point edgeA, Point edgeB)
+        {
+            double pX = edgeB.X - edgeA.X;
+            double pY = edgeB.Y - edgeA.Y;
+            double tmp = (pX * pX) + (pY * pY);
+            double u = ((p.X - edgeA.X) * pX + (p.Y - edgeA.Y) * pY) / tmp;
+
+            if (u > 1) u = 1;
+            else if (u < 0) u = 0;
+
+            double x = edgeA.X + u * pX;
+            double y = edgeA.Y + u * pY;
+
+            double dX = x - p.X;
+            double dY = y - p.Y;
+
+            return Math.Sqrt(dX * dX + dY * dY);
+        }
+
         public static double PointsDistance(Point p1, Point p2)
             => Math.Sqrt(Math.Pow(Math.Abs(p2.X - p1.X), 2) + Math.Pow(Math.Abs(p2.Y - p1.Y), 2));
 
