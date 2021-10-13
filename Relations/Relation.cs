@@ -10,9 +10,9 @@ namespace Projekt1.Relations
     abstract class Relation
     {
         protected int objectIndex;
-        protected Shape baseShape;
+        protected SimpleShape baseShape;
 
-        public Relation(Shape baseShape, int objectIndex)
+        public Relation(SimpleShape baseShape, int objectIndex)
         {
             this.objectIndex = objectIndex;
             this.baseShape = baseShape;
@@ -20,6 +20,6 @@ namespace Projekt1.Relations
 
         public abstract bool CanMakeMove();
 
-        public abstract void HandleAction();
+        /*public abstract void HandleAction();*/
     }
 }

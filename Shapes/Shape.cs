@@ -9,6 +9,7 @@ namespace Projekt1.Shapes
 {
     abstract class Shape
     {
+
         public bool Completed { get; protected set; }
 
         public int? SelectedObjectIndex { get; protected set;  }= null;

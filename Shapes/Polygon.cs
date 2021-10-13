@@ -1,65 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using System.Drawing.Drawing2D;
 
 namespace Projekt1.Shapes
 {
-    class Polygon: Shape
+    class Polygon : AdvancedShape
     {
-        public enum ObjectType
-        {
-            Vertex,
-            Line,
-            Whole
-        }
+        public override ShapeType GetShapeType() => ShapeType.Polygon;
 
-        public SortedDictionary<int, Tuple<int, int>> Lines { get; private set; }
-        public SortedDictionary<int, Point> Vertices { get; private set; }
-
-        public ObjectType SelectObjectType { get; protected set; }
-
-        private Point StartPoint => this.Vertices.First().Value;
+        public SortedDictionary<int, Edge> Edges { get; private set; } = new SortedDictionary<int, Edge>();
+        public SortedDictionary<int, Vertex> Vertices { get; private set; } = new SortedDictionary<int, Vertex>();
 
         public bool AlmostCompleted { get; private set; } = false;
 
-        public Polygon(Point startPoint, Form form): base(form)
+        private Vertex StartVertex => this.Vertices[1];
+
+        public Polygon(Point startPoint)
         {
-            this.Lines = new SortedDictionary<int, Tuple<int, int>>();
-            this.Vertices = new SortedDictionary<int, Point>
-            {
-                { 1, startPoint }
-            };
+            this.Vertices.Add(1, new Vertex(startPoint));
+        }
+
+        public override void UpdateLastPoint(Point p)
+        {
+            this.Vertices.Last().Value.SetPoint(p);
+            this.AlmostCompleted = this.Edges.Count > 2 && DrawHelper.PointsDistance(this.StartVertex.GetPoint, p) < 16;
         }
 
         public void AddLine(Point p)
         {
             int newPointIndex = this.Vertices.Last().Key + 1;
-            this.Vertices.Add(newPointIndex, p);
+            var newVertex = new Vertex(p);
+            this.Vertices.Add(newPointIndex, newVertex);
 
-            int firstPointIndex = this.Lines.Count == 0 ? 1 : this.Lines.Last().Value.Item2;
-            int lineIndex = this.Lines.Count == 0 ? 1 : this.Lines.Last().Key + 1;
+            var firstVertex = this.Edges.Count == 0 ? this.StartVertex : this.Edges.Last().Value.VertexB;
+            int edgeIndex = this.Edges.Count == 0 ? 1 : this.Edges.Last().Key + 1;
 
-            this.Lines.Add(lineIndex, new Tuple<int, int>(firstPointIndex, newPointIndex));
-        }
-
-        public int GetLineLength(int lineIndex)
-        {
-            var line = this.Lines[lineIndex];
-            return (int) DrawHelper.PointsDistance(this.Vertices[line.Item1], this.Vertices[line.Item2]);
-        }
-
-        public void SetLineLength(int lineIndex, int length)
-        {
-            var line = this.Lines[lineIndex];
-        }
-
-        public override void UpdateLastPoint(Point p)
-        {
-            this.Vertices[this.Vertices.Count] = p;
-            this.AlmostCompleted = this.Lines.Count > 2 && DrawHelper.PointsDistance(this.StartPoint, p) < 16;
+            this.Edges.Add(edgeIndex, new Edge(){ VertexA = firstVertex, VertexB = newVertex});
         }
 
         public override void FinishDrawing(Point p)
@@ -72,28 +50,9 @@ namespace Projekt1.Shapes
                 // Delete last vertex because is supposed to be StartPoint.
                 this.Vertices.Remove(this.Vertices.Count);
 
-                // Set last line second vertex as StartPoint
-                var lastLine = this.Lines.Last();
-                this.Lines[this.Lines.Count] = new Tuple<int, int>(lastLine.Value.Item1, 1);
-            }
-        }
-
-        public override void SelectObject(int index)
-        {
-            if (index == 0)
-            {
-                this.SelectedObjectIndex = 0;
-                this.SelectObjectType = ObjectType.Whole;
-            }
-            else if (index > 0)
-            {
-                this.SelectedObjectIndex = index;
-                this.SelectObjectType = ObjectType.Vertex;
-            }
-            else // Index < 0
-            {
-                this.SelectedObjectIndex = -index;
-                this.SelectObjectType = ObjectType.Line;
+                // Set last edge second vertex as StartPoint
+                var lastLine = this.Edges.Last();
+                this.Edges[this.Edges.Count] = new Edge(){ VertexA = lastLine.Value.VertexA, VertexB = this.StartVertex};
             }
         }
 
@@ -102,146 +61,110 @@ namespace Projekt1.Shapes
             // If polygon if closed (completed), fill it with some color 
             if (this.Completed)
             {
-                Brush fillBrush = this.SelectObjectType == ObjectType.Whole && this.SelectedObjectIndex == 0
-                    ? Brushes.Red
-                    : Brushes.AliceBlue;
+                List<Point> points = new List<Point>();
 
-                e.Graphics.FillPolygon(fillBrush, this.Vertices.Values.ToArray());
+                foreach (var vertex in this.Vertices)
+                    points.Add(vertex.Value.GetPoint);
+
+                e.Graphics.FillPolygon(
+                    new SolidBrush(DrawHelper.GetFillColor(this.SelectedShape?.GetShapeType() == ShapeType.Polygon)), 
+                    points.ToArray()
+                );
             }
 
             // Draw vertices
-            foreach (var vertex in this.Vertices)
+            foreach (var vertex in this.Vertices.Values)
             {
-                Brush brush = this.SelectObjectType == ObjectType.Vertex && this.SelectedObjectIndex == vertex.Key
-                    ? Brushes.Red
-                    : Brushes.Black;
-
                 int radius = 5;
 
-                e.Graphics.FillEllipse(brush, new Rectangle(
-                    vertex.Value.X - radius,
-                    vertex.Value.Y - radius,
-                    radius + radius,
-                    radius + radius
-                ));
+                e.Graphics.FillEllipse(
+                    new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape?.Uid == vertex.Uid)),
+                    new Rectangle(
+                        vertex.X - radius,
+                        vertex.Y - radius,
+                        radius + radius,
+                        radius + radius
+                    )
+                );
             }
 
             // Draw lines
-            foreach (var line in this.Lines)
+            foreach (var edge in this.Edges.Values)
             {
-                Color color = this.SelectObjectType == ObjectType.Line && this.SelectedObjectIndex == line.Key
-                    ? Color.Red
-                    : Color.Black;
-                DrawHelper.DrawLine(bm, this.Vertices[line.Value.Item1], this.Vertices[line.Value.Item2], color);
+                DrawHelper.DrawLine(
+                    bm, 
+                    edge.VertexA.GetPoint, 
+                    edge.VertexB.GetPoint, 
+                    DrawHelper.GetNormalColor(this.SelectedShape?.Uid == edge.Uid)
+                );
             }
 
             // Draw circle around start point to easily finish polygon
             if (this.AlmostCompleted)
             {
-                Pen pen = new Pen(Color.Red, 1);
+                Pen pen = new Pen(DrawHelper.GetNormalColor(true), 1);
 
                 e.Graphics.DrawEllipse(
                     pen,
-                    this.StartPoint.X - DrawHelper.DISTANCE,
-                    this.StartPoint.Y - DrawHelper.DISTANCE,
+                    this.StartVertex.X - DrawHelper.DISTANCE,
+                    this.StartVertex.Y - DrawHelper.DISTANCE,
                     DrawHelper.DISTANCE + DrawHelper.DISTANCE,
                     DrawHelper.DISTANCE + DrawHelper.DISTANCE
                 );
+
+                pen.Dispose();
             }
         }
 
-        public override bool IsNearSelectedObjectIndex(Point p)
-        {
-            if (this.SelectedObjectIndex == null) return false;
-
-            var nearestIndex = this.GetNearestPoint(p);
-
-            if (this.SelectObjectType == ObjectType.Whole && nearestIndex == 0) return true;
-            if (this.SelectObjectType == ObjectType.Line && nearestIndex == -this.SelectedObjectIndex) return true;
-            if (this.SelectObjectType == ObjectType.Vertex && nearestIndex == this.SelectedObjectIndex) return true;
-
-            return false;
-        }
-
-        public override int? GetNearestPoint(Point p)
+        public override SimpleShape GetNearestShape(Point p)
         {
             // Vertex clicked
-            foreach (var vertex in this.Vertices)
-                if (DrawHelper.PointsDistance(p, vertex.Value) < DrawHelper.DISTANCE)
-                    return vertex.Key;
+            foreach (var vertex in this.Vertices.Values)
+                if (DrawHelper.PointsDistance(p, vertex.GetPoint) < DrawHelper.DISTANCE)
+                    return vertex;
 
             // Edge clicked
-            foreach (var line in this.Lines)
-                if (DrawHelper.EdgeDistance(p, this.Vertices[line.Value.Item1], this.Vertices[line.Value.Item2]) < DrawHelper.DISTANCE)
-                    return -line.Key;
+            foreach (var edge in this.Edges.Values)
+                if (DrawHelper.EdgeDistance(p, edge.VertexA.GetPoint, edge.VertexB.GetPoint) < DrawHelper.DISTANCE)
+                    return edge;
 
             // Detect if whole polygon is clicked
             var polygon = new GraphicsPath();
-            polygon.AddPolygon(this.Vertices.Values.ToArray());
+            List<Point> points = new List<Point>();
+
+            foreach (var vertex in this.Vertices)
+                points.Add(vertex.Value.GetPoint);
+
+            polygon.AddPolygon(points.ToArray());
 
             if (polygon.IsVisible(p))
-                return 0;
-           
+                return this;
+
             return null;
         }
 
-        public override void UpdateMoving(Point p)
+        public override void Move(int dX, int dY)
         {
-            if (!this.isMoving || this.SelectedObjectIndex == null) throw new Exception("Moving object index not set");
-
-            switch (this.SelectObjectType)
-            {
-                case ObjectType.Vertex:
-                    this.Vertices[(int)this.SelectedObjectIndex] = p;
-                    break;
-                case ObjectType.Line:
-                    var line = this.Lines[(int)this.SelectedObjectIndex];
-
-                    var lineStart = this.Vertices[line.Item1];
-                    var lineEnd = this.Vertices[line.Item2];
-
-                    int dX = p.X - this.lastMovingPoint.X;
-                    int dY = p.Y - this.lastMovingPoint.Y;
-
-                    lineStart.X += dX;
-                    lineStart.Y += dY;
-
-                    lineEnd.X += dX;
-                    lineEnd.Y += dY;
-
-                    this.Vertices[line.Item1] = lineStart;
-                    this.Vertices[line.Item2] = lineEnd;
-
-                    break;
-                case ObjectType.Whole:
-                    int dXw = p.X - this.lastMovingPoint.X;
-                    int dYw = p.Y - this.lastMovingPoint.Y;
-
-                    var newVertices = new SortedDictionary<int, Point>();
-
-                    foreach (var vertex in this.Vertices)
-                        newVertices.Add(vertex.Key, new Point(vertex.Value.X + dXw, vertex.Value.Y + dYw));
-
-                    this.Vertices = newVertices;
-
-                    break;
-            }
-
-            base.UpdateMoving(p);
+            foreach (var vertex in this.Vertices.Values)
+                vertex.Move(dX, dY);
         }
 
-        public void AddVertexOnLine()
+
+        public void AddVertexOnEdge()
         {
-            if (this.SelectObjectType != ObjectType.Line) return;
+            if (this.SelectedShape.GetShapeType() != ShapeType.Edge) return;
 
-            var currentLine = this.Lines[(int)this.SelectedObjectIndex];
+            var currentEdgeIndex = this.Edges.First((edge) => edge.Value.Uid == this.SelectedShape.Uid).Key;
 
-            var vertexA = this.Vertices[currentLine.Item1];
-            var vertexB = this.Vertices[currentLine.Item2];
+            /*var currentLine = this.Lines[(int)this.SelectedObjectIndex];*/
+
+            var currentEdge = (Edge) this.SelectedShape;
+            var vertexA = currentEdge.VertexA;
+            var vertexB = currentEdge.VertexB;
 
             // Sanitize vertices dictionary
-            var newVertices = new SortedDictionary<int, Point>();
-            int newVertexIndex = currentLine.Item1 + 1;
+            var newVertices = new SortedDictionary<int, Vertex>();
+            int newVertexIndex = this.Vertices.First((vertex) => vertex.Value.Uid == currentEdge.VertexA.Uid).Key + 1;
 
             foreach (var vertex in this.Vertices)
             {
@@ -250,78 +173,101 @@ namespace Projekt1.Shapes
             }
 
             // Save new vertex
-            newVertices.Add(newVertexIndex, new Point((vertexA.X + vertexB.X) / 2, (vertexA.Y + vertexB.Y) / 2));
+            var newVertex = new Vertex(new Point((vertexA.X + vertexB.X) / 2, (vertexA.Y + vertexB.Y) / 2));
+            newVertices.Add(newVertexIndex, newVertex);
 
-            // Sanitize lines dictionary
-            var newLines = new SortedDictionary<int, Tuple<int, int>>();
+            // Sanitize edges dictionary
+            var newEdges = new SortedDictionary<int, Edge>();
 
-            foreach (var line in this.Lines)
+            foreach (var edge in this.Edges)
             {
-                if (line.Key < this.SelectedObjectIndex) newLines.Add(line.Key, line.Value);
-                else if (line.Key > this.SelectedObjectIndex) newLines.Add(line.Key + 1, new Tuple<int, int>(line.Value.Item1 + 1, line.Value.Item2 == 1 ? 1 : line.Value.Item2 + 1));
+                if (edge.Key < currentEdgeIndex) newEdges.Add(edge.Key, edge.Value);
+                else if (edge.Key > currentEdgeIndex) newEdges.Add(edge.Key + 1, edge.Value);
             }
 
             // Add new lines (split existing one)
-            newLines.Add((int)this.SelectedObjectIndex, new Tuple<int, int>(currentLine.Item1, newVertexIndex));
-            newLines.Add((int)this.SelectedObjectIndex + 1, new Tuple<int, int>(newVertexIndex, currentLine.Item2 == 1 ? 1 : currentLine.Item2 + 1));
+            newEdges.Add(currentEdgeIndex, new Edge(){ VertexA = vertexA, VertexB = newVertex});
+            newEdges.Add(currentEdgeIndex + 1, new Edge() { VertexA = newVertex, VertexB = currentEdge.VertexB });
 
             this.Vertices = newVertices;
-            this.Lines = newLines;
+            this.Edges = newEdges;
 
             // Select newly created vertex
-            this.SelectObjectType = ObjectType.Vertex;
-            this.SelectedObjectIndex = newVertexIndex;
+            this.SelectedShape = newVertex;
         }
 
         public void RemoveCurrentVertex()
         {
-            if (this.SelectObjectType != ObjectType.Vertex || this.Lines.Count <= 3) return;
+            if (this.SelectedShape.GetShapeType() != ShapeType.Vertex || this.Vertices.Count <= 3) return;
 
-            // Sanitize vertices dictionary
-            var newVertices = new SortedDictionary<int, Point>();
+            int selectedShapeIndex = this.Vertices.First((vertex) => vertex.Value.Uid == this.SelectedShape.Uid).Key;
+            this.Vertices.Remove(selectedShapeIndex);
 
-            foreach (var vertex in this.Vertices)
-            {
-                if (vertex.Key > this.SelectedObjectIndex) newVertices.Add(vertex.Key - 1, vertex.Value);
-                else if (vertex.Key < this.SelectedObjectIndex) newVertices.Add(vertex.Key, vertex.Value);
-            }
+            var edgeWithSelectedVertexAsFirst =
+                this.Edges.First((edge) => edge.Value.VertexA.Uid == this.SelectedShape.Uid);
 
-            // Save new vertices
-            this.Vertices = newVertices;
+            int edgeBeforeKey = edgeWithSelectedVertexAsFirst.Key > 1 ? edgeWithSelectedVertexAsFirst.Key - 1 : this.Edges.Count;
 
-            // Delete last line (it doesnt matter which one)
-            this.Lines.Remove(this.Lines.Count);
-            this.Lines[this.Lines.Count] = new Tuple<int, int>(this.Lines.Last().Value.Item1, 1);
+            // Remove edge which first vertex is the one we want to delete
+            this.Edges.Remove(edgeWithSelectedVertexAsFirst.Key);
+
+            // Change edge before
+            this.Edges[edgeBeforeKey].VertexB = edgeWithSelectedVertexAsFirst.Value.VertexB;
+
+            // Sanitize keys
+            this.SanitizeVertexKeys();
+            this.SanitizeEdgeKeys();
 
             // Deselect vertex
-            this.DeselectObject();
+            this.DeselectShape();
+        }
+
+        private void SanitizeVertexKeys()
+        {
+            var newVertices = new SortedDictionary<int, Vertex>();
+
+            int i = 1;
+
+            foreach (var vertex in this.Vertices.Values)
+                newVertices.Add(i++, vertex);
+
+            this.Vertices = newVertices;
+        }
+
+        private void SanitizeEdgeKeys()
+        {
+            var newEdges = new SortedDictionary<int, Edge>();
+
+            int i = 1;
+
+            foreach (var edge in this.Edges.Values)
+                newEdges.Add(i++, edge);
+
+            this.Edges = newEdges;
         }
 
         public override string ToString()
         {
-            string text =  $"Polygon - {this.Lines.Count} lines | {this.Vertices.Count} vertices";
+            string text = $"Polygon - {this.Edges.Count} edges | {this.Vertices.Count} vertices";
 
-            if (this.SelectedObjectIndex != null)
+            if (this.SelectedShape != null)
             {
-                switch (this.SelectObjectType)
+                switch (this.SelectedShape.GetShapeType())
                 {
-                    case ObjectType.Vertex:
-                        text +=
-                            $" | Selected vertex ({this.SelectedObjectIndex}): ({this.Vertices[(int)this.SelectedObjectIndex].X}, {this.Vertices[(int)this.SelectedObjectIndex].Y})";
+                    case ShapeType.Vertex:
+                        text += $" | Selected vertex {this.SelectedShape.ToString()}";
                         break;
-                    case ObjectType.Line:
-                        var line = this.Lines[(int)this.SelectedObjectIndex];
-                        text +=
-                            $" | Selected edge ({this.SelectedObjectIndex}): ({this.Vertices[line.Item1].X}, {this.Vertices[line.Item1].Y}), ({this.Vertices[line.Item2].X}, {this.Vertices[line.Item2].Y})";
+                    case ShapeType.Edge:
+                        text += $" | Selected edge {this.SelectedShape.ToString()}";
                         break;
-                    case ObjectType.Whole:
-                        text +=
-                            $" | Selected polygon";
+                    case ShapeType.Polygon:
+                        text += " | Selected whole polygon";
                         break;
                 }
             }
-            
-            return text + this.GetRelationsString();
+
+            //return text + this.GetRelationsString();
+            return text;
         }
     }
 }

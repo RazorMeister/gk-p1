@@ -176,5 +176,9 @@ namespace Projekt1
 
         public static Point CenterPoint(Point p1, Point p2) 
             => new Point((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2);
+
+        public static Color GetNormalColor(bool selected) => selected ? Color.Red : Color.Black;
+
+        public static Color GetFillColor(bool selected) => selected ? Color.Red : Color.AliceBlue;
     }
 }

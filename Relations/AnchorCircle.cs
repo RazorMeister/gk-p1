@@ -16,7 +16,7 @@ namespace Projekt1.Relations
 
         public override bool CanMakeMove()
         {
-            return !this.baseShape.IsSelectedWholeShape();
+            return true; //!this.baseShape.IsSelectedWholeShape();
         }
 
         public override string ToString()

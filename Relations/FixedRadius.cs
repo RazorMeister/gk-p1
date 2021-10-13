@@ -13,13 +13,13 @@ namespace Projekt1.Relations
 
         public FixedRadius(Circle circle, int r) : base(circle, 0)
         {
-            circle.SetR(r);
+            //circle.SetR(r);
             this.r = r;
         }
 
         public override bool CanMakeMove()
         {
-            return this.baseShape.IsSelectedWholeShape();
+            return true; //this.baseShape.IsSelectedWholeShape();
         }
 
         public override string ToString()

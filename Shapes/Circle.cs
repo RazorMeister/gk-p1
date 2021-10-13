@@ -1,93 +1,88 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace Projekt1.Shapes
 {
-    class Circle: Shape
+    class Circle : AdvancedShape
     {
-        private Point _startPoint;
-        public int R { get; private set; }
+        private Vertex startVertex; // Center of the circle
+        public int R { get; set; }
 
-        public Circle(Point startPoint, Form form): base(form)
+        public Circle(Point startPoint)
         {
-            this._startPoint = startPoint;
+            this.startVertex = new Vertex(startPoint);
+        }
+
+        public override ShapeType GetShapeType() => ShapeType.Circle;
+
+        public override void Move(int dX, int dY)
+        {
+            this.startVertex.Move(dX, dY);
         }
 
         public override void UpdateLastPoint(Point p)
         {
-            this.R = (int) DrawHelper.PointsDistance(p, this._startPoint);
-        }
-
-        public void SetR(int r)
-        {
-            this.R = r;
-        }
-
-        public override void FinishDrawing(Point p)
-        {
-            this.Completed = true;
-        }
-
-        public override bool IsNearSelectedObjectIndex(Point p)
-        {
-            if (this.SelectedObjectIndex == null) return false;
-            return this.GetNearestPoint(p) == this.SelectedObjectIndex;
+            this.R = (int)DrawHelper.PointsDistance(p, this.startVertex.GetPoint);
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)
         {
-            DrawHelper.DrawCircle(bm, this._startPoint, this.R, this.SelectedObjectIndex == 1 ? Color.Red : Color.Black);
+            DrawHelper.DrawCircle(
+                bm, 
+                this.startVertex.GetPoint, 
+                this.R,
+                DrawHelper.GetNormalColor(this.SelectedShape != null && this.SelectedShape.GetShapeType() != ShapeType.Circle)
+            );
 
             if (Completed)
             {
-                Brush fillBrush = this.SelectedObjectIndex == 0
-                     ? Brushes.Red
-                     : Brushes.AliceBlue;
-
-                e.Graphics.FillEllipse(fillBrush, new Rectangle(
-                    this._startPoint.X - this.R,
-                    this._startPoint.Y - this.R,
-                    this.R + this.R,
-                    this.R + this.R
-                ));
+                e.Graphics.FillEllipse(
+                    new SolidBrush(DrawHelper.GetFillColor(this.SelectedShape?.GetShapeType() == ShapeType.Circle)),
+                    new Rectangle(
+                        this.startVertex.X - this.R,
+                        this.startVertex.Y - this.R,
+                        this.R + this.R,
+                        this.R + this.R
+                    )
+                );
             }
         }
 
-        public override int? GetNearestPoint(Point p)
+        protected override void HandleMoving(int dX, int dY)
+        {
+            if (this.SelectedShape.GetShapeType() == ShapeType.Circle) this.SelectedShape.Move(dX, dY);
+            else this.R = (int)DrawHelper.PointsDistance(this.startVertex.GetPoint, this.lastPoint);
+        }
+
+        public override SimpleShape GetNearestShape(Point p)
         {
             // Edge clicked
-            var distance = DrawHelper.PointsDistance(p, this._startPoint) - this.R;
-            if (distance >= -DrawHelper.DISTANCE && distance <= DrawHelper.DISTANCE)
-                return 1; 
+            var distance = DrawHelper.PointsDistance(p, this.startVertex.GetPoint) - this.R;
+            if (distance is >= -DrawHelper.DISTANCE and <= DrawHelper.DISTANCE)
+                return this.startVertex;
 
             // Whole circle clicked
-            if (DrawHelper.PointsDistance(p, this._startPoint) <= this.R)
-                return 0;
+            if (DrawHelper.PointsDistance(p, this.startVertex.GetPoint) <= this.R)
+                return this;
 
             return null;
         }
 
-        public override void UpdateMoving(Point p)
-        {
-            if (!this.CanMakeMove()) return;
-
-            if (this.SelectedObjectIndex == 0)
-            {
-                int dX = p.X - this.lastMovingPoint.X;
-                int dY = p.Y - this.lastMovingPoint.Y;
-
-                this._startPoint = new Point(this._startPoint.X + dX, this._startPoint.Y + dY);
-            }
-            else
-                this.R = (int)DrawHelper.PointsDistance(this._startPoint, p);
-
-            base.UpdateMoving(p);
-        }
-
         public override string ToString()
         {
-            return $"Circle - startPoint ({this._startPoint.X}, {this._startPoint.Y}) | r = {this.R}" + this.GetRelationsString();
+            var text = $"Circle | startPoint {this.startVertex.ToString()} | R = {this.R}";
+
+            switch (this.SelectedShape?.GetShapeType())
+            {
+                case ShapeType.Circle:
+                    text += " | Selected whole shape";
+                    break;
+                case ShapeType.Vertex:
+                    text += " | Selected circle edge";
+                    break;
+            }
+
+            return text;
         }
     }
 }
