@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Projekt1.Relations;
 
 namespace Projekt1.Shapes
 {
@@ -14,8 +15,11 @@ namespace Projekt1.Shapes
             Polygon = 2,
             Edge = 3,
             Vertex = 4,
-            CircleEdge = 5
+            CircleEdge = 5,
+            CircleCenter = 6
         }
+
+        public Relation Relation { get; private set; }
 
         public string Uid { get; private set; }
 
@@ -26,8 +30,20 @@ namespace Projekt1.Shapes
 
         public abstract ShapeType GetShapeType();
 
+        public virtual Type[] GetPossibleRelationTypes() => null;
+
         public abstract void Move(int dX, int dY);
 
         public abstract override string ToString();
+
+        public void AddRelation(Relation relation)
+        {
+
+        }
+
+        public void RemoveRelation(Relation relation)
+        {
+
+        }
     }
 }
