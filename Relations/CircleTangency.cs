@@ -27,6 +27,11 @@ namespace Projekt1.Relations
         {
             if (movingShape?.GetShapeType() == SimpleShape.ShapeType.Circle)
             {
+                if (movingShape.SelectedShape.GetShapeType() != SimpleShape.ShapeType.CircleEdge)
+                {
+                    double distance = this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
+                    this.circle.SetR((int)distance);
+                }
                 //this.edge.Move(movingShape.DX, movingShape.DY);
 
                 /*var AB = this.edge.GetLineEquation();
