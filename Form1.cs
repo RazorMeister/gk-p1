@@ -68,7 +68,6 @@ namespace Projekt1
                             fixedEdge: this.currShape.GetType() == typeof(Polygon)
                                        && this.currShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge
                         );
-
                         break;
                     case Action.Moving:
                         this.changeButtonsEnabled();
@@ -84,6 +83,8 @@ namespace Projekt1
         private List<AdvancedShape> shapes = new List<AdvancedShape>();
         private AdvancedShape currShape = null;
 
+        private List<Relation> relations = new List<Relation>();
+
         public Form1()
         {
             InitializeComponent();
@@ -92,6 +93,28 @@ namespace Projekt1
         private void Form1_Load(object sender, EventArgs e)
         {
             this.currAction = Action.None;
+
+            var newShape = new Polygon(new Point(100, 50));
+            newShape.AddLine(new Point(200, 50));
+            newShape.AddLine(new Point(200, 250));
+            newShape.AddLine(new Point(100, 250));
+            newShape.AddLine(new Point(100, 50));
+            newShape.UpdateLastPoint(new Point(100, 50));
+            newShape.FinishDrawing();
+
+            this.shapes.Add(newShape);
+
+
+            var newCircle = new Circle(new Point(150, 400));
+            newCircle.SetR(100);
+            newCircle.FinishDrawing();
+
+            this.shapes.Add(newCircle);
+
+            this.relations.Add(new ParallelEdges(newShape.Edges[2], newShape.Edges[4]));
+            //this.relations.Add(new AnchorCircle(newCircle));
+            //this.relations.Add(new FixedRadius(newCircle, 100));
+            this.relations.Add(new CircleTangency(newCircle, newShape.Edges[3]));
         }
 
         private void wrapper_MouseClick(object sender, MouseEventArgs e)
@@ -133,7 +156,7 @@ namespace Projekt1
                     {
                         if (((Polygon)this.currShape).AlmostCompleted)
                         {
-                            this.currShape.FinishDrawing(this.currPoint);
+                            this.currShape.FinishDrawing();
                             this.currAction = Action.None;
                         }
                         else
@@ -141,7 +164,7 @@ namespace Projekt1
                     }
                     else if (this.currDrawingOption == DrawingOptions.Circle)
                     {
-                        this.currShape.FinishDrawing(this.currPoint);
+                        this.currShape.FinishDrawing();
                         this.action = Action.None;
                     }
 
@@ -179,6 +202,7 @@ namespace Projekt1
             {
                 case Action.Moving:
                     this.currShape.UpdateMoving(this.currPoint);
+                    this.relations.ForEach(relation => relation.FixRelation(this.currShape));
                     break;
                 case Action.Drawing:
                     this.currShape.UpdateLastPoint(this.currPoint);

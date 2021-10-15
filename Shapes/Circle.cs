@@ -9,7 +9,7 @@ namespace Projekt1.Shapes
     {
         private const int MIN_R = 8;
 
-        private CircleCenter center; // Center of the circle
+        public CircleCenter center { get; private set; } // Center of the circle
         private CircleEdge edge;
 
         public int R { get; private set; }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Projekt1.Shapes
             this.Edges.Add(edgeIndex, new Edge(){ VertexA = firstVertex, VertexB = newVertex});
         }
 
-        public override void FinishDrawing(Point p)
+        public override void FinishDrawing()
         {
             if (this.AlmostCompleted)
             {
@@ -66,10 +67,17 @@ namespace Projekt1.Shapes
                 foreach (var vertex in this.Vertices)
                     points.Add(vertex.Value.GetPoint);
 
-                e.Graphics.FillPolygon(
-                    new SolidBrush(DrawHelper.GetFillColor(this.SelectedShape?.GetShapeType() == ShapeType.Polygon)), 
-                    points.ToArray()
-                );
+                try
+                {
+                    e.Graphics.FillPolygon(
+                        new SolidBrush(
+                            DrawHelper.GetFillColor(this.SelectedShape?.GetShapeType() == ShapeType.Polygon)),
+                        points.ToArray()
+                    );
+                }
+                catch (Exception error)
+                {
+                }
             }
 
             // Draw vertices
@@ -77,15 +85,21 @@ namespace Projekt1.Shapes
             {
                 int radius = 5;
 
-                e.Graphics.FillEllipse(
-                    new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape?.Uid == vertex.Uid)),
-                    new Rectangle(
-                        vertex.X - radius,
-                        vertex.Y - radius,
-                        radius + radius,
-                        radius + radius
-                    )
-                );
+                try
+                {
+                    e.Graphics.FillEllipse(
+                        new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape?.Uid == vertex.Uid)),
+                        new Rectangle(
+                            vertex.X - radius,
+                            vertex.Y - radius,
+                            radius + radius,
+                            radius + radius
+                        )
+                    );
+                }
+                catch (Exception exception)
+                {
+                }
             }
 
             // Draw lines
@@ -137,8 +151,8 @@ namespace Projekt1.Shapes
 
             polygon.AddPolygon(points.ToArray());
 
-            if (polygon.IsVisible(p))
-                return this;
+            /*if (polygon.IsVisible(p))
+                return this;*/
 
             return null;
         }

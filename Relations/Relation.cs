@@ -20,6 +20,8 @@ namespace Projekt1.Relations
 
         public abstract bool CanMakeMove();
 
+        public abstract void FixRelation(AdvancedShape movingShape);
+
         /*public abstract void HandleAction();*/
     }
 }

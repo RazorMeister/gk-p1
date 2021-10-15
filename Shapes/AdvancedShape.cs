@@ -11,11 +11,15 @@ namespace Projekt1.Shapes
         protected bool isMoving = false;
         public SimpleShape SelectedShape { get; protected set; } = null;
 
+        public int DX { get; private set; }
+        public int DY { get; private set; }
+
+
         public virtual void UpdateLastPoint(Point p) => this.lastPoint = p;
 
         /* Drawing */
         public abstract void Draw(Bitmap bm, PaintEventArgs e);
-        public virtual void FinishDrawing(Point p) => this.Completed = true;
+        public virtual void FinishDrawing() => this.Completed = true;
 
         /* Selecting */
         public abstract SimpleShape GetNearestShape(Point p);
@@ -34,10 +38,10 @@ namespace Projekt1.Shapes
         {
             if (!this.isMoving || this.SelectedShape == null) throw new Exception("Moving shape not set");
 
-            int dX = p.X - this.lastPoint.X;
-            int dY = p.Y - this.lastPoint.Y;
+            DX = p.X - this.lastPoint.X;
+            DY = p.Y - this.lastPoint.Y;
             this.lastPoint = p;
-            this.HandleMoving(dX, dY);
+            this.HandleMoving(DX, DY);
         }
         protected virtual void HandleMoving(int dX, int dY) => this.SelectedShape.Move(dX, dY);
 
