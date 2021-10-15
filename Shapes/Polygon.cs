@@ -151,8 +151,8 @@ namespace Projekt1.Shapes
 
             polygon.AddPolygon(points.ToArray());
 
-            /*if (polygon.IsVisible(p))
-                return this;*/
+            if (polygon.IsVisible(p))
+                return this;
 
             return null;
         }

@@ -25,13 +25,22 @@ namespace Projekt1.Relations
 
         public override void FixRelation(AdvancedShape movingShape)
         {
-            if (movingShape?.GetShapeType() == SimpleShape.ShapeType.Circle)
+            if (
+                movingShape?.GetShapeType() == SimpleShape.ShapeType.Circle 
+                && movingShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.CircleEdge
+                )
             {
-                if (movingShape.SelectedShape.GetShapeType() != SimpleShape.ShapeType.CircleEdge)
-                {
-                    double distance = this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
-                    this.circle.SetR((int)distance);
-                }
+                var AB = this.edge.GetLineEquation();
+
+                var newA = -1 / AB.Item1;
+
+                double distance = this.circle.R - this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
+                double a = AB.Item1;
+
+                double tmp = distance / Math.Sqrt(Math.Abs(a * a + 1));
+
+                this.circle.center.Move((int)(tmp * a), (int)(tmp));
+
                 //this.edge.Move(movingShape.DX, movingShape.DY);
 
                 /*var AB = this.edge.GetLineEquation();
