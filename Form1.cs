@@ -94,27 +94,33 @@ namespace Projekt1
         {
             this.currAction = Action.None;
 
-            var newShape = new Polygon(new Point(100, 50));
-            newShape.AddLine(new Point(200, 50));
-            newShape.AddLine(new Point(200, 250));
-            newShape.AddLine(new Point(100, 250));
-            newShape.AddLine(new Point(100, 50));
-            newShape.UpdateLastPoint(new Point(100, 50));
+            var newShape = new Polygon(new Point(300, 100));
+            newShape.AddLine(new Point(500, 170));
+            newShape.AddLine(new Point(450, 400));
+            newShape.AddLine(new Point(300, 250));
+            newShape.AddLine(new Point(100, 300));
+            newShape.AddLine(new Point(200, 150));
+            newShape.UpdateLastPoint(new Point(300, 100));
             newShape.FinishDrawing();
 
             this.shapes.Add(newShape);
 
-
-            var newCircle = new Circle(new Point(150, 400));
+            var newCircle = new Circle(new Point(350, 20));
             newCircle.SetR(100);
             newCircle.FinishDrawing();
 
-            this.shapes.Add(newCircle);
+            var newCircle2 = new Circle(new Point(200, 400));
+            newCircle2.SetR(100);
+            newCircle2.FinishDrawing();
 
-            this.relations.Add(new ParallelEdges(newShape.Edges[2], newShape.Edges[4]));
+            this.shapes.Add(newCircle);
+            this.shapes.Add(newCircle2);
+
+            this.relations.Add(new ParallelEdges(newShape.Edges[3], newShape.Edges[5]));
             //this.relations.Add(new AnchorCircle(newCircle));
             //this.relations.Add(new FixedRadius(newCircle, 100));
-            this.relations.Add(new CircleTangency(newCircle, newShape.Edges[3]));
+            this.relations.Add(new CircleTangency(newCircle, newShape.Edges[1]));
+            this.relations.Add(new CircleTangency(newCircle2, newShape.Edges[4]));
         }
 
         private void wrapper_MouseClick(object sender, MouseEventArgs e)

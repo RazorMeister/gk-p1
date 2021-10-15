@@ -87,7 +87,7 @@ namespace Projekt1.Shapes
 
             // Edge clicked
             var distance = DrawHelper.PointsDistance(p, this.center.GetPoint) - this.R;
-            if (distance is >= -DrawHelper.DISTANCE and <= DrawHelper.DISTANCE)
+            if (distance >= -DrawHelper.DISTANCE && distance <= DrawHelper.DISTANCE)
                 return this.edge;
 
             // Whole circle clicked

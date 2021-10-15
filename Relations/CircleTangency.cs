@@ -35,24 +35,26 @@ namespace Projekt1.Relations
                 var newA = -1 / AB.Item1;
 
                 double distance = this.circle.R - this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
-                double a = AB.Item1;
+                double a = Math.Abs(AB.Item1); // Ignore direction of edge
 
-                double tmp = distance / Math.Sqrt(Math.Abs(a * a + 1));
+                double b = 1;
 
-                this.circle.center.Move((int)(tmp * a), (int)(tmp));
+                int tmp = (int)(distance / Math.Sqrt(Math.Abs(a * a + b * b)));
 
-                //this.edge.Move(movingShape.DX, movingShape.DY);
+                // Check if moving in the right direction
+                double tmpDistance = this.circle.R  - this.edge.GetDistanceFromPoint(
+                    new Point(this.circle.center.X + (int)(tmp * a), this.circle.center.Y + (int)(tmp * b))
+                );
 
-                /*var AB = this.edge.GetLineEquation();
+                if (Math.Abs(tmpDistance) > Math.Abs(distance)) tmp = -tmp;
 
-                double a = AB.Item1;
-                double distance = this.edge.GetDistanceFromPoint(this.circle.center.GetPoint) - this.circle.R;
+                Debug.WriteLine($"tmp - {tmp} | distance - {distance} | tmpDistance - {tmpDistance}");
 
-                double tmp = distance / Math.Sqrt(Math.Abs(a * a + 1));
+                // Move circle center
+                this.circle.center.Move((int)(tmp * a), (int)(tmp * b));
 
-                Debug.WriteLine($" distance - {distance} | tmp - {tmp} | DX = {tmp * a} | DY = {tmp}");
-
-                this.edge.Move((int)(tmp * a), (int)(tmp));*/
+                // Move edge
+                //this.edge.Move(-(int)(tmp * a), -tmp);
             }
             else
             {
