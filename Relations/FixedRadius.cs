@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Projekt1.Properties;
 using Projekt1.Shapes;
 
 namespace Projekt1.Relations
@@ -12,27 +15,45 @@ namespace Projekt1.Relations
         private int r;
         private Circle circle;
 
-        public FixedRadius(Circle circle, int r) : base(circle, 0)
+        public FixedRadius(Circle circle, int r)
         {
             this.circle = circle;
             this.r = r;
 
-            this.FixRelation(null);
-        }
+            this.circle.AddRelation(this);
 
-        public override bool CanMakeMove()
-        {
-            return true; //this.baseShape.IsSelectedWholeShape();
+            this.FixRelation(null);
         }
 
         public override void FixRelation(AdvancedShape movingShape)
         {
+            if (movingShape == this.circle && movingShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.CircleEdge)
+                throw new CannotMoveException();
+
             this.circle.SetR(this.r);
         }
 
-        public override string ToString()
+        public override void Draw(Bitmap bm, PaintEventArgs e)
         {
-            return $"FixedRadius (R = {this.r})";
+            e.Graphics.DrawIcon(
+                new Icon(Resources.FixedRadiusRelation, 20, 20),
+                this.circle.center.X - 25,
+                this.circle.center.Y - 25
+            );
+        }
+
+        public override void Destroy()
+        {
+            this.circle.RemoveRelation(this);
+            base.Destroy();
+        }
+
+        public static BtnStatus RelationBtnStatus(AdvancedShape shape)
+        {
+            if (shape.GetType() == typeof(Circle))
+                return shape.HasRelationByType(typeof(FixedRadius)) ? BtnStatus.Active : BtnStatus.Enabled;
+
+            return BtnStatus.Disabled;
         }
     }
 }

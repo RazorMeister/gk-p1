@@ -43,9 +43,12 @@ namespace Projekt1
             this.actionWrapper = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.anchorCircleBtn = new System.Windows.Forms.Button();
-            this.fixedRadiusBtn = new System.Windows.Forms.Button();
+            this.circleTangencyBtn = new System.Windows.Forms.Button();
+            this.parallelEdgesBtn = new System.Windows.Forms.Button();
             this.fixedEdgeBtn = new System.Windows.Forms.Button();
+            this.fixedRadiusBtn = new System.Windows.Forms.Button();
+            this.anchorCircleBtn = new System.Windows.Forms.Button();
+            this.almostCompletedLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.wrapper)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -74,7 +77,7 @@ namespace Projekt1
             this.polygonBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.polygonBtn.Location = new System.Drawing.Point(25, 30);
             this.polygonBtn.Name = "polygonBtn";
-            this.polygonBtn.Size = new System.Drawing.Size(93, 33);
+            this.polygonBtn.Size = new System.Drawing.Size(108, 33);
             this.polygonBtn.TabIndex = 1;
             this.polygonBtn.Text = "Polygon";
             this.polygonBtn.UseVisualStyleBackColor = true;
@@ -86,7 +89,7 @@ namespace Projekt1
             this.circleBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.circleBtn.Location = new System.Drawing.Point(165, 30);
             this.circleBtn.Name = "circleBtn";
-            this.circleBtn.Size = new System.Drawing.Size(93, 33);
+            this.circleBtn.Size = new System.Drawing.Size(108, 33);
             this.circleBtn.TabIndex = 2;
             this.circleBtn.Text = "Circle";
             this.circleBtn.UseVisualStyleBackColor = true;
@@ -100,9 +103,9 @@ namespace Projekt1
             this.resetBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.resetBtn.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.resetBtn.Location = new System.Drawing.Point(758, 558);
-            this.resetBtn.Margin = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.resetBtn.Margin = new System.Windows.Forms.Padding(10);
             this.resetBtn.Name = "resetBtn";
-            this.resetBtn.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.resetBtn.Padding = new System.Windows.Forms.Padding(5);
             this.resetBtn.Size = new System.Drawing.Size(148, 40);
             this.resetBtn.TabIndex = 1;
             this.resetBtn.Text = "Reset form";
@@ -125,9 +128,9 @@ namespace Projekt1
             this.removeVertexBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.removeVertexBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.removeVertexBtn.Location = new System.Drawing.Point(21, 30);
-            this.removeVertexBtn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.removeVertexBtn.Margin = new System.Windows.Forms.Padding(2);
             this.removeVertexBtn.Name = "removeVertexBtn";
-            this.removeVertexBtn.Size = new System.Drawing.Size(95, 30);
+            this.removeVertexBtn.Size = new System.Drawing.Size(108, 30);
             this.removeVertexBtn.TabIndex = 4;
             this.removeVertexBtn.Text = "Remove Vertex";
             this.removeVertexBtn.UseVisualStyleBackColor = true;
@@ -138,9 +141,9 @@ namespace Projekt1
             this.addVertexBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.addVertexBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.addVertexBtn.Location = new System.Drawing.Point(161, 30);
-            this.addVertexBtn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.addVertexBtn.Margin = new System.Windows.Forms.Padding(2);
             this.addVertexBtn.Name = "addVertexBtn";
-            this.addVertexBtn.Size = new System.Drawing.Size(93, 30);
+            this.addVertexBtn.Size = new System.Drawing.Size(108, 30);
             this.addVertexBtn.TabIndex = 5;
             this.addVertexBtn.Text = "Add vertex";
             this.addVertexBtn.UseVisualStyleBackColor = true;
@@ -151,9 +154,9 @@ namespace Projekt1
             this.removeShapeBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.removeShapeBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.removeShapeBtn.Location = new System.Drawing.Point(21, 83);
-            this.removeShapeBtn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.removeShapeBtn.Margin = new System.Windows.Forms.Padding(2);
             this.removeShapeBtn.Name = "removeShapeBtn";
-            this.removeShapeBtn.Size = new System.Drawing.Size(95, 31);
+            this.removeShapeBtn.Size = new System.Drawing.Size(108, 31);
             this.removeShapeBtn.TabIndex = 6;
             this.removeShapeBtn.Text = "Remove shape";
             this.removeShapeBtn.UseVisualStyleBackColor = true;
@@ -203,11 +206,13 @@ namespace Projekt1
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(79, 29);
             this.label1.TabIndex = 10;
-            this.label1.Text = "ActionLabel";
+            this.label1.Text = "None";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.circleTangencyBtn);
+            this.groupBox3.Controls.Add(this.parallelEdgesBtn);
             this.groupBox3.Controls.Add(this.fixedEdgeBtn);
             this.groupBox3.Controls.Add(this.fixedRadiusBtn);
             this.groupBox3.Controls.Add(this.anchorCircleBtn);
@@ -219,31 +224,31 @@ namespace Projekt1
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Manage relations";
             // 
-            // anchorCircleBtn
+            // circleTangencyBtn
             // 
-            this.anchorCircleBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.anchorCircleBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.anchorCircleBtn.Location = new System.Drawing.Point(21, 37);
-            this.anchorCircleBtn.Margin = new System.Windows.Forms.Padding(2);
-            this.anchorCircleBtn.Name = "anchorCircleBtn";
-            this.anchorCircleBtn.Size = new System.Drawing.Size(95, 30);
-            this.anchorCircleBtn.TabIndex = 5;
-            this.anchorCircleBtn.Text = "Anchor circle";
-            this.anchorCircleBtn.UseVisualStyleBackColor = true;
-            this.anchorCircleBtn.Click += new System.EventHandler(this.anchorCircleBtn_Click);
+            this.circleTangencyBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.circleTangencyBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.circleTangencyBtn.Location = new System.Drawing.Point(21, 143);
+            this.circleTangencyBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.circleTangencyBtn.Name = "circleTangencyBtn";
+            this.circleTangencyBtn.Size = new System.Drawing.Size(108, 30);
+            this.circleTangencyBtn.TabIndex = 9;
+            this.circleTangencyBtn.Text = "Tangency";
+            this.circleTangencyBtn.UseVisualStyleBackColor = true;
+            this.circleTangencyBtn.Click += new System.EventHandler(this.circleTangencyBtn_Click);
             // 
-            // fixedRadiusBtn
+            // parallelEdgesBtn
             // 
-            this.fixedRadiusBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.fixedRadiusBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.fixedRadiusBtn.Location = new System.Drawing.Point(161, 37);
-            this.fixedRadiusBtn.Margin = new System.Windows.Forms.Padding(2);
-            this.fixedRadiusBtn.Name = "fixedRadiusBtn";
-            this.fixedRadiusBtn.Size = new System.Drawing.Size(93, 30);
-            this.fixedRadiusBtn.TabIndex = 6;
-            this.fixedRadiusBtn.Text = "Fixed radius";
-            this.fixedRadiusBtn.UseVisualStyleBackColor = true;
-            this.fixedRadiusBtn.Click += new System.EventHandler(this.fixedRadiusBtn_Click);
+            this.parallelEdgesBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.parallelEdgesBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.parallelEdgesBtn.Location = new System.Drawing.Point(161, 92);
+            this.parallelEdgesBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.parallelEdgesBtn.Name = "parallelEdgesBtn";
+            this.parallelEdgesBtn.Size = new System.Drawing.Size(108, 30);
+            this.parallelEdgesBtn.TabIndex = 8;
+            this.parallelEdgesBtn.Text = "Parallel edges";
+            this.parallelEdgesBtn.UseVisualStyleBackColor = true;
+            this.parallelEdgesBtn.Click += new System.EventHandler(this.parallelEdgesBtn_Click);
             // 
             // fixedEdgeBtn
             // 
@@ -252,17 +257,56 @@ namespace Projekt1
             this.fixedEdgeBtn.Location = new System.Drawing.Point(21, 92);
             this.fixedEdgeBtn.Margin = new System.Windows.Forms.Padding(2);
             this.fixedEdgeBtn.Name = "fixedEdgeBtn";
-            this.fixedEdgeBtn.Size = new System.Drawing.Size(95, 30);
+            this.fixedEdgeBtn.Size = new System.Drawing.Size(108, 30);
             this.fixedEdgeBtn.TabIndex = 7;
             this.fixedEdgeBtn.Text = "Fixed edge";
             this.fixedEdgeBtn.UseVisualStyleBackColor = true;
             this.fixedEdgeBtn.Click += new System.EventHandler(this.fixedEdgeBtn_Click);
+            // 
+            // fixedRadiusBtn
+            // 
+            this.fixedRadiusBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.fixedRadiusBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fixedRadiusBtn.Location = new System.Drawing.Point(161, 37);
+            this.fixedRadiusBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.fixedRadiusBtn.Name = "fixedRadiusBtn";
+            this.fixedRadiusBtn.Size = new System.Drawing.Size(108, 30);
+            this.fixedRadiusBtn.TabIndex = 6;
+            this.fixedRadiusBtn.Text = "Fixed radius";
+            this.fixedRadiusBtn.UseVisualStyleBackColor = true;
+            this.fixedRadiusBtn.Click += new System.EventHandler(this.fixedRadiusBtn_Click);
+            // 
+            // anchorCircleBtn
+            // 
+            this.anchorCircleBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.anchorCircleBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.anchorCircleBtn.Location = new System.Drawing.Point(21, 37);
+            this.anchorCircleBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.anchorCircleBtn.Name = "anchorCircleBtn";
+            this.anchorCircleBtn.Size = new System.Drawing.Size(108, 30);
+            this.anchorCircleBtn.TabIndex = 5;
+            this.anchorCircleBtn.Text = "Anchor circle";
+            this.anchorCircleBtn.UseVisualStyleBackColor = true;
+            this.anchorCircleBtn.Click += new System.EventHandler(this.anchorCircleBtn_Click);
+            // 
+            // almostCompletedLabel
+            // 
+            this.almostCompletedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.almostCompletedLabel.BackColor = System.Drawing.Color.Transparent;
+            this.almostCompletedLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.almostCompletedLabel.Location = new System.Drawing.Point(738, 493);
+            this.almostCompletedLabel.Name = "almostCompletedLabel";
+            this.almostCompletedLabel.Size = new System.Drawing.Size(190, 29);
+            this.almostCompletedLabel.TabIndex = 11;
+            this.almostCompletedLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(983, 609);
+            this.Controls.Add(this.almostCompletedLabel);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.actionWrapper);
             this.Controls.Add(this.groupBox2);
@@ -304,6 +348,9 @@ namespace Projekt1
         private System.Windows.Forms.Button anchorCircleBtn;
         private System.Windows.Forms.Button fixedRadiusBtn;
         private System.Windows.Forms.Button fixedEdgeBtn;
+        private System.Windows.Forms.Button parallelEdgesBtn;
+        private System.Windows.Forms.Button circleTangencyBtn;
+        private System.Windows.Forms.Label almostCompletedLabel;
     }
 }
 

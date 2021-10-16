@@ -129,19 +129,26 @@ namespace Projekt1.Shapes
                 pen.Dispose();
             }
         }
-
-        public override SimpleShape GetNearestShape(Point p)
+        public override Tuple<SimpleShape, double> GetNearestShape(Point p)
         {
+            double distance;
+
             // Vertex clicked
             foreach (var vertex in this.Vertices.Values)
-                if (DrawHelper.PointsDistance(p, vertex.GetPoint) < DrawHelper.DISTANCE)
-                    return vertex;
-
+            {
+                distance = DrawHelper.PointsDistance(p, vertex.GetPoint);
+                if (distance < DrawHelper.DISTANCE)
+                    return new Tuple<SimpleShape, double>(vertex, distance);
+            }
+            
             // Edge clicked
             foreach (var edge in this.Edges.Values)
-                if (DrawHelper.EdgeDistance(p, edge.VertexA.GetPoint, edge.VertexB.GetPoint) < DrawHelper.DISTANCE)
-                    return edge;
-
+            {
+                distance = DrawHelper.EdgeDistance(p, edge.VertexA.GetPoint, edge.VertexB.GetPoint);
+                if (distance < DrawHelper.DISTANCE)
+                    return new Tuple<SimpleShape, double>(edge, distance);
+            }
+            
             // Detect if whole polygon is clicked
             var polygon = new GraphicsPath();
             List<Point> points = new List<Point>();
@@ -152,7 +159,7 @@ namespace Projekt1.Shapes
             polygon.AddPolygon(points.ToArray());
 
             if (polygon.IsVisible(p))
-                return this;
+                return new Tuple<SimpleShape, double>(this, DrawHelper.DISTANCE + 1);
 
             return null;
         }
@@ -163,14 +170,14 @@ namespace Projekt1.Shapes
                 vertex.Move(dX, dY);
         }
 
-
         public void AddVertexOnEdge()
         {
             if (this.SelectedShape.GetShapeType() != ShapeType.Edge) return;
 
-            var currentEdgeIndex = this.Edges.First((edge) => edge.Value.Uid == this.SelectedShape.Uid).Key;
+            // Remove edge relations
+            this.SelectedShape.DestroyRelations();
 
-            /*var currentLine = this.Lines[(int)this.SelectedObjectIndex];*/
+            var currentEdgeIndex = this.Edges.First((edge) => edge.Value.Uid == this.SelectedShape.Uid).Key;
 
             var currentEdge = (Edge) this.SelectedShape;
             var vertexA = currentEdge.VertexA;
@@ -216,6 +223,11 @@ namespace Projekt1.Shapes
 
             int selectedShapeIndex = this.Vertices.First((vertex) => vertex.Value.Uid == this.SelectedShape.Uid).Key;
             this.Vertices.Remove(selectedShapeIndex);
+
+            // Remove relations from edges with specified vertex
+            foreach (var edge in this.Edges.Values)
+                if (edge.VertexA == this.SelectedShape || edge.VertexB == this.SelectedShape)
+                    edge.DestroyRelations();
 
             var edgeWithSelectedVertexAsFirst =
                 this.Edges.First((edge) => edge.Value.VertexA.Uid == this.SelectedShape.Uid);
@@ -282,6 +294,28 @@ namespace Projekt1.Shapes
 
             //return text + this.GetRelationsString();
             return text;
+        }
+
+        /* Saving position */
+        public override void SavePosition()
+        {
+            foreach(var edge in this.Edges.Values)
+                edge.SavePosition();
+        }
+
+        public override void BackUpSavedPosition()
+        {
+            foreach (var edge in this.Edges.Values)
+                edge.BackUpSavedPosition();
+        }
+
+        /* Destroying */
+        public override void Destroy()
+        {
+            foreach (var edge in this.Edges.Values)
+                edge.Destroy();
+
+            base.Destroy();
         }
     }
 }

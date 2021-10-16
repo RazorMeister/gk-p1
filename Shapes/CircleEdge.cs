@@ -12,10 +12,12 @@ namespace Projekt1.Shapes
     {
         public override ShapeType GetShapeType() => ShapeType.CircleEdge;
 
-        public override Type[] GetPossibleRelationTypes() => new[] {typeof(FixedRadius)};
-
-        public override void Move(int dX, int dY) { }
+        public override void Move(int dX, int dY) {}
 
         public override string ToString() => $"()";
+
+        public override void SavePosition() {}
+
+        public override void BackUpSavedPosition() {}
     }
 }

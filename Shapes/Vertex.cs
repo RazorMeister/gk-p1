@@ -11,6 +11,7 @@ namespace Projekt1.Shapes
     class Vertex : SimpleShape
     {
         private Point p;
+        private Point savedP;
 
         public int X
         {
@@ -40,6 +41,10 @@ namespace Projekt1.Shapes
             this.X += dX;
             this.Y += dY;
         }
+
+        public override void SavePosition() => this.savedP = new Point(this.p.X, this.p.Y);
+
+        public override void BackUpSavedPosition() => this.p = this.savedP;
 
         public override string ToString() => $"({this.X}, {this.Y})";
     }

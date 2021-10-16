@@ -61,12 +61,62 @@ namespace Projekt1.Properties {
         }
         
         /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Icon podobny do zasobu (Ikona).
+        /// </summary>
+        internal static System.Drawing.Icon AnchorCircleRelation {
+            get {
+                object obj = ResourceManager.GetObject("AnchorCircleRelation", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap btnRed {
             get {
                 object obj = ResourceManager.GetObject("btnRed", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Icon podobny do zasobu (Ikona).
+        /// </summary>
+        internal static System.Drawing.Icon CircleTangencyRelation {
+            get {
+                object obj = ResourceManager.GetObject("CircleTangencyRelation", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Icon podobny do zasobu (Ikona).
+        /// </summary>
+        internal static System.Drawing.Icon FixedEdgeRelation {
+            get {
+                object obj = ResourceManager.GetObject("FixedEdgeRelation", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Icon podobny do zasobu (Ikona).
+        /// </summary>
+        internal static System.Drawing.Icon FixedRadiusRelation {
+            get {
+                object obj = ResourceManager.GetObject("FixedRadiusRelation", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Icon podobny do zasobu (Ikona).
+        /// </summary>
+        internal static System.Drawing.Icon ParallelEdgesRelation {
+            get {
+                object obj = ResourceManager.GetObject("ParallelEdgesRelation", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

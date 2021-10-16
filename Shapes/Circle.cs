@@ -14,6 +14,8 @@ namespace Projekt1.Shapes
 
         public int R { get; private set; }
 
+        private int savedR;
+
         public Circle(Point startPoint)
         {
             this.center = new CircleCenter(startPoint);
@@ -79,20 +81,22 @@ namespace Projekt1.Shapes
                 this.SelectedShape.Move(dX, dY);
         }
 
-        public override SimpleShape GetNearestShape(Point p)
+        public override Tuple<SimpleShape, double> GetNearestShape(Point p)
         {
+            var distance = DrawHelper.PointsDistance(p, this.center.GetPoint);
+
             // Center point clicked
-            if (DrawHelper.PointsDistance(p, this.center.GetPoint) < DrawHelper.DISTANCE)
-                return this.center;
+            if (distance < DrawHelper.DISTANCE)
+                return new Tuple<SimpleShape, double>(this.center, distance);
 
             // Edge clicked
-            var distance = DrawHelper.PointsDistance(p, this.center.GetPoint) - this.R;
-            if (distance >= -DrawHelper.DISTANCE && distance <= DrawHelper.DISTANCE)
-                return this.edge;
+            distance = Math.Abs(distance - this.R);
+            if (distance <= DrawHelper.DISTANCE)
+                return new Tuple<SimpleShape, double>(this.edge, distance);
 
             // Whole circle clicked
             if (DrawHelper.PointsDistance(p, this.center.GetPoint) <= this.R)
-                return this;
+                return new Tuple<SimpleShape, double>(this, DrawHelper.DISTANCE + 1);
 
             return null;
         }
@@ -115,6 +119,18 @@ namespace Projekt1.Shapes
             }
 
             return text;
+        }
+
+        public override void SavePosition()
+        {
+            this.savedR = this.R;
+            this.center.SavePosition();
+        }
+
+        public override void BackUpSavedPosition()
+        {
+            this.R = this.savedR;
+            this.center.BackUpSavedPosition();
         }
     }
 }

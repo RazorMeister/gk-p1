@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
+using Projekt1.Properties;
 using Projekt1.Relations;
 using Projekt1.Shapes;
 
@@ -26,6 +29,9 @@ namespace Projekt1
 
         private Action action = Action.None;
 
+        private Dictionary<Type, Button> relationButtons = new Dictionary<Type, Button>();
+        private TwoShapesRelation almostCompletedRelation = null;
+
         private Action currAction
         {
             get => this.action;
@@ -39,9 +45,7 @@ namespace Projekt1
                 }
 
                 if (value == Action.None)
-                {
                     this.currShape = null;
-                }
 
                 this.action = value;
                 this.label1.Text = value.ToString();
@@ -50,9 +54,11 @@ namespace Projekt1
                 {
                     case Action.None:
                         this.changeButtonsEnabled(drawPolygon: true, drawCircle: true);
+                        this.changeRelationButtonsActive();
                         break;
                     case Action.Drawing:
                         this.changeButtonsEnabled();
+                        this.changeRelationButtonsActive();
                         break;
                     case Action.Selecting:
                         this.changeButtonsEnabled(
@@ -62,12 +68,10 @@ namespace Projekt1
                                        && this.currShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge,
                             removeVertex: this.currShape.GetType() == typeof(Polygon)
                                           && this.currShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Vertex,
-                            removeShape: true,
-                            anchorCircle: this.currShape.GetType() == typeof(Circle),
-                            fixedRadius: this.currShape.GetType() == typeof(Circle),
-                            fixedEdge: this.currShape.GetType() == typeof(Polygon)
-                                       && this.currShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge
+                            removeShape: true
                         );
+                        this.changeRelationButtonsActive();
+
                         break;
                     case Action.Moving:
                         this.changeButtonsEnabled();
@@ -81,7 +85,7 @@ namespace Projekt1
         private DrawingOptions currDrawingOption = DrawingOptions.Polygon;
 
         private List<AdvancedShape> shapes = new List<AdvancedShape>();
-        private AdvancedShape currShape = null;
+        private AdvancedShape currShape;
 
         private List<Relation> relations = new List<Relation>();
 
@@ -90,10 +94,31 @@ namespace Projekt1
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void initRelations()
         {
-            this.currAction = Action.None;
+            this.relationButtons.Add(typeof(AnchorCircle), this.anchorCircleBtn);
+            this.relationButtons.Add(typeof(FixedRadius), this.fixedRadiusBtn);
+            this.relationButtons.Add(typeof(FixedEdge), this.fixedEdgeBtn);
+            this.relationButtons.Add(typeof(CircleTangency), this.circleTangencyBtn);
+            this.relationButtons.Add(typeof(ParallelEdges), this.parallelEdgesBtn);
 
+            foreach (var relationBtn in this.relationButtons)
+            {
+                Debug.WriteLine(relationBtn.Key.Name + "Relation");
+
+                Icon icon = (Icon)Resources.ResourceManager.GetObject(relationBtn.Key.Name + "Relation") ?? Resources.AnchorCircleRelation;
+
+                if (icon == null)
+                    continue;
+
+                relationBtn.Value.Image = new Icon(icon, 20, 20).ToBitmap();
+                relationBtn.Value.ImageAlign = ContentAlignment.MiddleLeft;
+                relationBtn.Value.TextAlign = ContentAlignment.MiddleRight;
+            }
+        }
+
+        private void createDefaultShapes()
+        {
             var newShape = new Polygon(new Point(300, 100));
             newShape.AddLine(new Point(500, 170));
             newShape.AddLine(new Point(450, 400));
@@ -116,11 +141,33 @@ namespace Projekt1
             this.shapes.Add(newCircle);
             this.shapes.Add(newCircle2);
 
-            this.relations.Add(new ParallelEdges(newShape.Edges[3], newShape.Edges[5]));
-            //this.relations.Add(new AnchorCircle(newCircle));
-            //this.relations.Add(new FixedRadius(newCircle, 100));
-            this.relations.Add(new CircleTangency(newCircle, newShape.Edges[1]));
-            this.relations.Add(new CircleTangency(newCircle2, newShape.Edges[4]));
+            var parallelEdges = new ParallelEdges();
+            parallelEdges.AddShape(newShape.Edges[3]);
+            parallelEdges.AddShape(newShape.Edges[5]);
+            this.relations.Add(parallelEdges);
+
+            this.relations.Add(new AnchorCircle(newCircle2));
+            this.relations.Add(new FixedRadius(newCircle, 40));
+
+            var circleTangency = new CircleTangency();
+            circleTangency.AddShape(newCircle);
+            circleTangency.AddShape(newShape.Edges[1]);
+            this.relations.Add(circleTangency);
+
+            var circleTangency2 = new CircleTangency();
+            circleTangency2.AddShape(newCircle2);
+            circleTangency2.AddShape(newShape.Edges[4]);
+            this.relations.Add(circleTangency2);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            this.initRelations();
+            this.createDefaultShapes();
+
+            // Set default behavior to buttons
+            this.changeButtonsEnabled(drawPolygon: true, drawCircle: true);
+            this.changeRelationButtonsActive();
         }
 
         private void wrapper_MouseClick(object sender, MouseEventArgs e)
@@ -207,8 +254,19 @@ namespace Projekt1
             switch (this.currAction)
             {
                 case Action.Moving:
-                    this.currShape.UpdateMoving(this.currPoint);
-                    this.relations.ForEach(relation => relation.FixRelation(this.currShape));
+                    this.shapes.ForEach(shape => shape.SavePosition());
+
+                    try
+                    {
+                        this.currShape.UpdateMoving(this.currPoint);
+                        this.relations.ForEach(relation => relation.FixRelation(this.currShape));
+                    }
+                    catch (CannotMoveException exception)
+                    {
+                        this.shapes.ForEach(shape => shape.BackUpSavedPosition());
+                        Debug.WriteLine("Cannot move");
+                    }
+                    
                     break;
                 case Action.Drawing:
                     this.currShape.UpdateLastPoint(this.currPoint);
@@ -256,18 +314,60 @@ namespace Projekt1
 
             if (this.currAction == Action.None)
             {
+                Tuple<Tuple<SimpleShape, AdvancedShape>, double> minNearestShape = null;
+
                 foreach (var shape in this.shapes.AsEnumerable().Reverse())
                 {
                     var nearestShape = shape.GetNearestShape(e.Location);
 
-                    if (nearestShape != null)
+                    if (
+                        nearestShape != null
+                        && (minNearestShape == null || nearestShape.Item2 < minNearestShape.Item2)
+                    )
                     {
-                        this.currShape = shape;
-                        this.currShape.SelectShape(nearestShape);
-                        this.currAction = Action.Moving;
-                        this.currShape.StartMoving(e.Location);
-                        this.wrapper.Cursor = Cursors.Hand;
-                        break;
+                        minNearestShape = new Tuple<Tuple<SimpleShape, AdvancedShape>, double>(
+                            new Tuple<SimpleShape, AdvancedShape>(nearestShape.Item1, shape), nearestShape.Item2
+                        );
+                    }
+                }
+
+
+                if (minNearestShape != null)
+                {
+                    this.currShape = minNearestShape.Item1.Item2;
+                    this.currShape.SelectShape(minNearestShape.Item1.Item1);
+                    this.currAction = Action.Moving;
+                    this.currShape.StartMoving(e.Location);
+                    this.wrapper.Cursor = Cursors.Hand;
+
+                    if (this.almostCompletedRelation != null)
+                    {
+                        SimpleShape.ShapeType? leftShapeType = this.almostCompletedRelation.GetLeftShapeType();
+
+                        if (leftShapeType != null)
+                        {
+                            if (this.currShape.GetShapeType() == leftShapeType)
+                                this.almostCompletedRelation.AddShape(this.currShape);
+                            else if (this.currShape.SelectedShape.GetShapeType() == leftShapeType)
+                                this.almostCompletedRelation.AddShape(this.currShape.SelectedShape);
+                        }
+
+                        if (!this.almostCompletedRelation.Completed)
+                        {
+                            this.almostCompletedRelation.Destroy();
+                            this.relations.Remove(this.almostCompletedRelation);
+
+                            this.action = Action.None;
+                            MessageBox.Show(
+                                "Selected object cannot be added to specified relation!",
+                                "Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error
+                            );
+                        }
+
+                        this.almostCompletedRelation = null;
+                        this.almostCompletedLabel.Text = "";
                     }
                 }
             }
@@ -283,6 +383,9 @@ namespace Projekt1
             var bm = new Bitmap(this.wrapper.Width, this.wrapper.Height);
 
             this.shapes.ForEach(shape => shape.Draw(bm, e));
+
+            this.relations.RemoveAll(relation => relation.Destroyed);
+            this.relations.ForEach(relation => relation.Draw(bm, e));
 
             this.debugLabel.Text = this.currShape != null ? this.currShape.ToString() : "";
 
@@ -347,10 +450,7 @@ namespace Projekt1
             bool drawCircle = false,
             bool addVertex = false,
             bool removeVertex = false,
-            bool removeShape = false,
-            bool anchorCircle = false,
-            bool fixedRadius = false,
-            bool fixedEdge = false
+            bool removeShape = false
         )
         {
             this.polygonBtn.Enabled = drawPolygon;
@@ -358,54 +458,169 @@ namespace Projekt1
             this.addVertexBtn.Enabled = addVertex;
             this.removeVertexBtn.Enabled = removeVertex;
             this.removeShapeBtn.Enabled = removeShape;
-            this.anchorCircleBtn.Enabled = anchorCircle;
-            this.fixedRadiusBtn.Enabled = fixedRadius;
-            this.fixedEdgeBtn.Enabled = fixedEdge;
+        }
+
+        private void changeRelationButtonsActive()
+        {
+            List<Type> relationTypes = this.currShape != null ? this.currShape.GetAllRelationTypes() : new List<Type>();
+
+            if (this.currShape?.SelectedShape != null) 
+                relationTypes.AddRange(this.currShape.SelectedShape.GetAllRelationTypes());
+
+            foreach (var relationBtn in this.relationButtons)
+            {
+                MethodInfo method = relationBtn.Key.GetMethod("RelationBtnStatus");
+
+                if (method == null)
+                    continue;
+
+                Relation.BtnStatus btnStatus = this.currShape == null 
+                    ? Relation.BtnStatus.Disabled 
+                    : (Relation.BtnStatus)method.Invoke(null, new object[]{this.currShape});
+
+                relationBtn.Value.FlatAppearance.BorderColor =
+                    btnStatus == Relation.BtnStatus.Active ? Color.Green : Color.Black;
+
+                relationBtn.Value.Enabled = btnStatus != Relation.BtnStatus.Disabled;
+            }
         }
 
         private void anchorCircleBtn_Click(object sender, EventArgs e)
         {
-            /*if (!this.currShape.HasRelation(typeof(AnchorCircle)))
-                this.currShape.AddRelation(new AnchorCircle((Circle) this.currShape));
+            Relation r = this.currShape.GetRelationByType(typeof(AnchorCircle));
+
+            if (r == null)
+            {
+                r = new AnchorCircle((Circle) this.currShape);
+                this.relations.Add(r);
+            }
             else
-                this.currShape.RemoveRelation(typeof(AnchorCircle));*/
+            {
+                r.Destroy();
+                this.relations.Remove(r);
+            }
+
+            this.changeRelationButtonsActive();
+            this.wrapper.Invalidate();
         }
 
         private void fixedRadiusBtn_Click(object sender, EventArgs e)
         {
-            /*if (!this.currShape.HasRelation(typeof(FixedRadius)))
+            Relation r = this.currShape.GetRelationByType(typeof(FixedRadius));
+
+            if (r == null)
             {
-                using (Prompt prompt = new Prompt("text", "caption", ((Circle)this.currShape).R.ToString()))
+                using (Prompt prompt = new Prompt(
+                    "Please provide radius length", 
+                    "Provide radius length", 
+                    ((Circle)this.currShape).R.ToString()
+                ))
                 {
                     string result = prompt.Result;
 
                     if (result != "")
-                        this.currShape.AddRelation(new FixedRadius((Circle)this.currShape, Int32.Parse(result)));
+                    {
+                        r = new FixedRadius((Circle)this.currShape, Int32.Parse(result));
+                        this.relations.Add(r);
+                    }
                 }
             }
             else
-                this.currShape.RemoveRelation(typeof(FixedRadius));*/
+            {
+                r.Destroy();
+                this.relations.Remove(r);
+            }
 
+            this.changeRelationButtonsActive();
             this.wrapper.Invalidate();
         }
 
         private void fixedEdgeBtn_Click(object sender, EventArgs e)
         {
-            /*if (!this.currShape.HasRelation(typeof(FixedEdge)))
+            Relation r = this.currShape.SelectedShape.GetRelationByType(typeof(FixedEdge));
+
+            if (r == null)
             {
-                using (Prompt prompt = new Prompt("text", "caption", ((Polygon)this.currShape).GetLineLength((int)this.currShape.SelectedObjectIndex).ToString()))
+                Edge edge = (Edge) this.currShape.SelectedShape;
+
+                int edgeLength = (int)DrawHelper.PointsDistance(
+                    edge.VertexA.GetPoint,
+                    edge.VertexB.GetPoint
+                );
+
+                using (Prompt prompt = new Prompt(
+                    "Please provide edge length",
+                    "Provide edge length",
+                    edgeLength.ToString()
+                ))
                 {
                     string result = prompt.Result;
 
                     if (result != "")
-                        this.currShape.AddRelation(
-                            new FixedEdge((Polygon)this.currShape, (int)this.currShape.SelectedObjectIndex, Int32.Parse(result))
-                        );
+                    {
+                        r = new FixedEdge(edge, Int32.Parse(result));
+                        this.relations.Add(r);
+                    }
                 }
             }
             else
-                this.currShape.RemoveRelation(typeof(FixedEdge));*/
+            {
+                r.Destroy();
+                this.relations.Remove(r);
+            }
 
+            this.changeRelationButtonsActive();
+            this.wrapper.Invalidate();
+        }
+
+        private void circleTangencyBtn_Click(object sender, EventArgs e)
+        {
+            Relation r = this.currShape.GetRelationByType(typeof(CircleTangency)) 
+                         ?? this.currShape.SelectedShape.GetRelationByType(typeof(CircleTangency));
+
+            if (r == null)
+            {
+                r = new CircleTangency();
+                this.relations.Add(r);
+
+                if (this.currShape.GetShapeType() == SimpleShape.ShapeType.Circle)
+                    ((CircleTangency)r).AddShape(this.currShape);
+                else
+                    ((CircleTangency)r).AddShape(this.currShape.SelectedShape);
+
+                this.almostCompletedRelation = (TwoShapesRelation)r;
+                this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation)r).GetLeftShapeType())}";
+            }
+            else
+            {
+                r.Destroy();
+                this.relations.Remove(r);
+            }
+
+            this.changeRelationButtonsActive();
+            this.wrapper.Invalidate();
+        }
+
+        private void parallelEdgesBtn_Click(object sender, EventArgs e)
+        {
+            Relation r = this.currShape.SelectedShape.GetRelationByType(typeof(ParallelEdges));
+
+            if (r == null)
+            {
+                r = new ParallelEdges();
+                ((TwoShapesRelation)r).AddShape(this.currShape.SelectedShape);
+                this.relations.Add(r);
+
+                this.almostCompletedRelation = (TwoShapesRelation)r;
+                this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation) r).GetLeftShapeType())}";
+            }
+            else
+            {
+                r.Destroy();
+                this.relations.Remove(r);
+            }
+
+            this.changeRelationButtonsActive();
             this.wrapper.Invalidate();
         }
     }

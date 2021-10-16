@@ -19,7 +19,7 @@ namespace Projekt1.Shapes
             CircleCenter = 6
         }
 
-        public Relation Relation { get; private set; }
+        private List<Relation> relations = new List<Relation>();
 
         public string Uid { get; private set; }
 
@@ -30,20 +30,46 @@ namespace Projekt1.Shapes
 
         public abstract ShapeType GetShapeType();
 
-        public virtual Type[] GetPossibleRelationTypes() => null;
-
         public abstract void Move(int dX, int dY);
 
         public abstract override string ToString();
 
-        public void AddRelation(Relation relation)
-        {
 
+        /* Saving position */
+        public abstract void SavePosition();
+
+        public abstract void BackUpSavedPosition();
+
+        /* Relations */
+        public void AddRelation(Relation relation) => this.relations.Add(relation);
+
+        public void RemoveRelation(Relation relation) => this.relations.Remove(relation);
+
+        public virtual Relation GetRelationByType(Type relationType) 
+            => this.relations.Find(relation => relation.GetType() == relationType);
+
+        public virtual bool HasRelationByType(Type relationType) => this.GetRelationByType(relationType) != null;
+
+        public virtual List<Type> GetAllRelationTypes()
+        {
+            List<Type> relationTypes = new List<Type>();
+            this.relations.ForEach(relation => relationTypes.Add(relation.GetType()));
+            return relationTypes;
         }
 
-        public void RemoveRelation(Relation relation)
-        {
+        public virtual int GetRelationsNumberExcept(Type? relationType) 
+            => this.relations.FindAll(relation => relation.GetType() != relationType).Count;
 
+        public void DestroyRelations()
+        {
+            foreach (var relation in this.relations.ToArray())
+                relation.Destroy();
+        }
+
+        /* Destroying */
+        public virtual void Destroy()
+        {
+            this.DestroyRelations();
         }
     }
 }

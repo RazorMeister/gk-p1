@@ -40,6 +40,21 @@ namespace Projekt1.Shapes
                 ) / DrawHelper.PointsDistance(this.VertexA.GetPoint, this.VertexB.GetPoint);
         }
 
+        public Point GetMiddlePoint()
+            => new Point((this.VertexA.X + this.VertexB.X) / 2, (this.VertexA.Y + this.VertexB.Y) / 2);
+
+        public override void SavePosition()
+        {
+            this.VertexA.SavePosition();
+            this.VertexB.SavePosition();
+        }
+
+        public override void BackUpSavedPosition()
+        {
+            this.VertexA.BackUpSavedPosition();
+            this.VertexB.BackUpSavedPosition();
+        }
+
         public override string ToString() => $"({this.VertexA.ToString()}, {this.VertexB.ToString()})";
     }
 }

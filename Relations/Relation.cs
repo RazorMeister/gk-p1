@@ -1,27 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Projekt1.Properties;
 using Projekt1.Shapes;
 
 namespace Projekt1.Relations
 {
     abstract class Relation
     {
-        protected int objectIndex;
-        protected SimpleShape baseShape;
+        public bool Destroyed { get; private set; } = false;
 
-        public Relation(SimpleShape baseShape, int objectIndex)
+        public enum BtnStatus
         {
-            this.objectIndex = objectIndex;
-            this.baseShape = baseShape;
+            Disabled,
+            Enabled,
+            Active
         }
-
-        public abstract bool CanMakeMove();
 
         public abstract void FixRelation(AdvancedShape movingShape);
 
-        /*public abstract void HandleAction();*/
+        public abstract void Draw(Bitmap bm, PaintEventArgs e);
+
+        public virtual void Destroy() => this.Destroyed = true;
     }
 }

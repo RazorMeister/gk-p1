@@ -1,26 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.Windows.Forms;
+using Projekt1.Properties;
 using Projekt1.Shapes;
 
 namespace Projekt1.Relations
 {
-    class ParallelEdges : Relation
+    class ParallelEdges : TwoShapesRelation
     {
         private Edge firstEdge;
         private Edge secondEdge;
-
-        public ParallelEdges(Edge edge, Edge secondEdge) : base(edge, 0)
-        {
-            this.firstEdge = edge;
-            this.secondEdge = secondEdge;
-
-            this.FixRelation(null);
-        }
-
-        public override bool CanMakeMove()
-        {
-            throw new NotImplementedException();
-        }
 
         public override void FixRelation(AdvancedShape movingShape)
         {
@@ -60,9 +50,77 @@ namespace Projekt1.Relations
                 otherEdge.VertexB.SetPoint(new Point(otherEdge.VertexB.X, newY));
         }
 
-        public override string ToString()
+        public override void Draw(Bitmap bm, PaintEventArgs e)
         {
-            return "AnchorCircle";
+            if (!this.Completed) return;
+
+            var icon = new Icon(Resources.ParallelEdgesRelation, 20, 20);
+
+            var firstMiddlePoint = this.firstEdge.GetMiddlePoint();
+            e.Graphics.DrawIcon(icon, firstMiddlePoint.X - 18, firstMiddlePoint.Y - 18);
+
+            var secondMiddlePoint = this.secondEdge.GetMiddlePoint();
+            e.Graphics.DrawIcon(icon, secondMiddlePoint.X - 18, secondMiddlePoint.Y - 18);
+        }
+
+        public override void Destroy()
+        {
+            this.firstEdge?.RemoveRelation(this);
+            this.secondEdge?.RemoveRelation(this);
+            base.Destroy();
+        }
+
+        public override SimpleShape.ShapeType? GetLeftShapeType()
+        {
+            if (this.Completed) return null;
+            return SimpleShape.ShapeType.Edge;
+        }
+
+        public override void AddShape(SimpleShape shape)
+        {
+            if (this.firstEdge == null)
+                this.firstEdge = (Edge)shape;
+            else
+            {
+                this.secondEdge = (Edge)shape;
+
+                if (
+                    this.firstEdge.VertexA == this.secondEdge.VertexA
+                    || this.firstEdge.VertexA == this.secondEdge.VertexB
+                    || this.firstEdge.VertexB == this.secondEdge.VertexA
+                    || this.firstEdge.VertexB == this.secondEdge.VertexB
+                    || this.secondEdge.GetRelationsNumberExcept(null) != 0
+                )
+                {
+                    this.secondEdge = null;
+                    return;
+                }
+            }
+                
+
+            shape.AddRelation(this);
+
+            if (this.firstEdge != null && this.secondEdge != null)
+            {
+                this.Completed = true;
+                this.FixRelation(null);
+            }
+        }
+
+        public static BtnStatus RelationBtnStatus(AdvancedShape shape)
+        {
+            if (shape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge)
+            {
+                return shape.SelectedShape.HasRelationByType(typeof(ParallelEdges))
+                    ? BtnStatus.Active
+                    : (
+                        shape.SelectedShape.GetRelationsNumberExcept(typeof(ParallelEdges)) == 0
+                            ? BtnStatus.Enabled
+                            : BtnStatus.Disabled
+                    );
+            }
+
+            return BtnStatus.Disabled;
         }
     }
 }

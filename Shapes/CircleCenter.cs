@@ -13,7 +13,5 @@ namespace Projekt1.Shapes
         public CircleCenter(Point p) : base(p) {}
 
         public override ShapeType GetShapeType() => ShapeType.CircleCenter;
-
-        public override Type[] GetPossibleRelationTypes() => new [] {typeof(AnchorCircle)};
     }
 }

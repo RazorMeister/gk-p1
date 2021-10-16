@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Projekt1.Properties;
 using Projekt1.Shapes;
 
 namespace Projekt1.Relations
@@ -13,26 +15,46 @@ namespace Projekt1.Relations
         private Point startPoint;
         private Circle circle;
 
-        public AnchorCircle(Circle circle) : base(circle, 0)
+        public AnchorCircle(Circle circle)
         {
             var point = circle.center.GetPoint;
             this.startPoint = new Point(point.X, point.Y);
             this.circle = circle;
-        }
 
-        public override string ToString()
-        {
-            return "AnchorCircle";
-        }
-
-        public override bool CanMakeMove()
-        {
-            throw new NotImplementedException();
+            this.circle.AddRelation(this);
         }
 
         public override void FixRelation(AdvancedShape movingShape)
         {
+            if (
+                movingShape == this.circle 
+                && movingShape.SelectedShape.GetShapeType() != SimpleShape.ShapeType.CircleEdge
+            )
+                throw new CannotMoveException();
+
             this.circle.center.SetPoint(this.startPoint);
+        }
+
+        public override void Draw(Bitmap bm, PaintEventArgs e)
+        {
+            e.Graphics.DrawIcon(
+                new Icon(Resources.AnchorCircleRelation, 20, 20), 
+                this.circle.center.X - 25, 
+                this.circle.center.Y - 8
+            );
+        }
+
+        public static BtnStatus RelationBtnStatus(AdvancedShape shape)
+        {
+            return shape.GetShapeType() == SimpleShape.ShapeType.Circle 
+                ? (shape.HasRelationByType(typeof(AnchorCircle)) ? BtnStatus.Active : BtnStatus.Enabled)
+                : BtnStatus.Disabled;
+        }
+
+        public override void Destroy()
+        {
+            this.circle.RemoveRelation(this);
+            base.Destroy();
         }
     }
 }

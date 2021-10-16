@@ -57,12 +57,14 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Prompt.cs" />
+    <Compile Include="Relations\CannotMoveException.cs" />
     <Compile Include="Relations\CircleTangency.cs" />
     <Compile Include="Relations\ParallelEdges.cs" />
     <Compile Include="Relations\FixedEdge.cs" />
     <Compile Include="Relations\FixedRadius.cs" />
     <Compile Include="Relations\AnchorCircle.cs" />
     <Compile Include="Relations\Relation.cs" />
+    <Compile Include="Relations\TwoShapesRelation.cs" />
     <Compile Include="Shapes\AdvancedShape.cs" />
     <Compile Include="Shapes\Circle.cs" />
     <Compile Include="Shapes\Edge.cs" />
@@ -102,6 +104,20 @@
   <ItemGroup>
     <None Include="Resources\btnRed.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\AnchorCircleRelation.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ParallelEdgesRelation.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CircleTangencyRelation.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FixedRadiusRelation.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FixedEdge.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

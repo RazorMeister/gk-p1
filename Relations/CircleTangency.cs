@@ -1,34 +1,85 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Security.Cryptography;
+using System.Windows.Forms;
+using Projekt1.Properties;
 using Projekt1.Shapes;
 
 namespace Projekt1.Relations
 {
-    class CircleTangency : Relation
+    class CircleTangency : TwoShapesRelation
     {
         private Edge edge;
         private Circle circle;
 
-        public CircleTangency(Circle circle, Edge edge) : base(edge, 0)
+        public override void AddShape(SimpleShape shape)
         {
-            this.edge = edge;
-            this.circle = circle;
+            if (shape.GetShapeType() == SimpleShape.ShapeType.Circle)
+                this.circle = (Circle)shape;
+            else
+                this.edge = (Edge)shape;
 
-            this.FixRelation(null);
-        }
+            shape.AddRelation(this);
 
-        public override bool CanMakeMove()
-        {
-            throw new NotImplementedException();
+            if (this.edge != null && this.circle != null)
+            {
+                this.Completed = true;
+                this.FixRelation(null);
+            }
         }
 
         public override void FixRelation(AdvancedShape movingShape)
         {
-            if (
-                movingShape?.GetShapeType() == SimpleShape.ShapeType.Circle 
-                && movingShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.CircleEdge
-                )
+            if (!this.Completed) return;
+
+            // 1 - move circle center
+            // 2 - move edge
+            // 3 - change r
+            int moveType = 0;
+
+
+            // 1 - moving edge
+            // 2 - moving circle
+            int currentlyMovingType = movingShape == circle
+                ? (movingShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.CircleEdge ? 1 : 2)
+                : 0;
+
+            //Debug.WriteLine($"currentlyMoving: {currentlyMovingType} | hasAnchor: {this.circle.HasRelationByType(typeof(AnchorCircle))} | hasFixed: {this.circle.HasRelationByType(typeof(FixedRadius))}");
+
+            if (this.circle.HasRelationByType(typeof(AnchorCircle)))
+            {
+                if (
+                    this.circle.HasRelationByType(typeof(FixedRadius))
+                    || currentlyMovingType == 1
+                ) 
+                    moveType = 2;
+                else
+                    moveType = 3;
+            } else if (
+                this.circle.HasRelationByType(typeof(FixedRadius))
+                || currentlyMovingType == 1
+            )
+            {
+                if (currentlyMovingType == 2)
+                    moveType = 2;
+                else
+                    moveType = 1;
+            }
+            else
+            {
+                moveType = 3;
+            }
+
+
+            //Debug.WriteLine($"m9oveType: {moveType}");
+
+            if (moveType == 3)
+            {
+                double distance = this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
+                this.circle.SetR((int)distance);
+            }
+            else
             {
                 var AB = this.edge.GetLineEquation();
 
@@ -37,35 +88,77 @@ namespace Projekt1.Relations
                 double distance = this.circle.R - this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
                 double a = Math.Abs(AB.Item1); // Ignore direction of edge
 
-                double b = 1;
+                double b = -1;
 
                 int tmp = (int)(distance / Math.Sqrt(Math.Abs(a * a + b * b)));
 
                 // Check if moving in the right direction
-                double tmpDistance = this.circle.R  - this.edge.GetDistanceFromPoint(
+                double tmpDistance = this.circle.R - this.edge.GetDistanceFromPoint(
                     new Point(this.circle.center.X + (int)(tmp * a), this.circle.center.Y + (int)(tmp * b))
                 );
 
                 if (Math.Abs(tmpDistance) > Math.Abs(distance)) tmp = -tmp;
 
-                Debug.WriteLine($"tmp - {tmp} | distance - {distance} | tmpDistance - {tmpDistance}");
+                /*Debug.WriteLine($"tmp - {tmp} | distance - {distance} | tmpDistance - {tmpDistance}");
+                Debug.WriteLine($"v - [{(int)(tmp * a)}, {(int)(tmp * b)}]");*/
 
-                // Move circle center
-                this.circle.center.Move((int)(tmp * a), (int)(tmp * b));
-
-                // Move edge
-                //this.edge.Move(-(int)(tmp * a), -tmp);
-            }
-            else
-            {
-                double distance = this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
-                this.circle.SetR((int)distance);
+                if (moveType == 2)
+                {
+                    // Move edge
+                    this.edge.Move(-(int)(tmp * a), -(int)(tmp * b));
+                }
+                else
+                {
+                    // Move circle center
+                    this.circle.center.Move((int)(tmp * a), (int)(tmp * b));
+                }
             }
         }
 
-        public override string ToString()
+        public override void Draw(Bitmap bm, PaintEventArgs e)
         {
-            return "AnchorCircle";
+            if (!this.Completed) return;
+
+            var icon = new Icon(Resources.CircleTangencyRelation, 20, 20);
+            var middlePoint = this.edge.GetMiddlePoint();
+
+            var d = (int)((this.circle.R + 18) / 1.41);
+
+            e.Graphics.DrawIcon(icon, this.circle.center.X - d, this.circle.center.Y - d);
+            e.Graphics.DrawIcon(icon, middlePoint.X - 18, middlePoint.Y - 18);
+        }
+
+        public override void Destroy()
+        {
+            this.circle?.RemoveRelation(this);
+            this.edge?.RemoveRelation(this);
+            base.Destroy();
+        }
+
+        public override SimpleShape.ShapeType? GetLeftShapeType()
+        {
+            return this.Completed
+                ? null
+                : (this.circle != null ? SimpleShape.ShapeType.Edge : SimpleShape.ShapeType.Circle);
+        }
+
+        public static BtnStatus RelationBtnStatus(AdvancedShape shape)
+        {
+            if (shape.GetType() == typeof(Circle))
+                return shape.HasRelationByType(typeof(CircleTangency)) ? BtnStatus.Active : BtnStatus.Enabled;
+
+            if (shape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge)
+            {
+                return shape.SelectedShape.HasRelationByType(typeof(CircleTangency))
+                    ? BtnStatus.Active
+                    : (
+                        shape.SelectedShape.GetRelationsNumberExcept(typeof(CircleTangency)) == 0
+                        ? BtnStatus.Enabled
+                        : BtnStatus.Disabled
+                    );
+            }
+
+            return BtnStatus.Disabled;
         }
     }
 }
