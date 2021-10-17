@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using Projekt1.Relations;
 
 namespace Projekt1.Shapes
 {
@@ -52,8 +54,8 @@ namespace Projekt1.Shapes
                 this.Vertices.Remove(this.Vertices.Count);
 
                 // Set last edge second vertex as StartPoint
-                var lastLine = this.Edges.Last();
-                this.Edges[this.Edges.Count] = new Edge(){ VertexA = lastLine.Value.VertexA, VertexB = this.StartVertex};
+                var lastEdge = this.Edges.Last();
+                lastEdge.Value.VertexB = this.StartVertex;
             }
         }
 
@@ -164,10 +166,10 @@ namespace Projekt1.Shapes
             return null;
         }
 
-        public override void Move(int dX, int dY)
+        public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {
             foreach (var vertex in this.Vertices.Values)
-                vertex.Move(dX, dY);
+                vertex.Move(dX, dY, relationsStack);
         }
 
         public void AddVertexOnEdge()
@@ -205,6 +207,9 @@ namespace Projekt1.Shapes
                 if (edge.Key < currentEdgeIndex) newEdges.Add(edge.Key, edge.Value);
                 else if (edge.Key > currentEdgeIndex) newEdges.Add(edge.Key + 1, edge.Value);
             }
+
+            currentEdge.VertexB.RemoveEdge(currentEdge);
+            currentEdge.VertexA.RemoveEdge(currentEdge);
 
             // Add new lines (split existing one)
             newEdges.Add(currentEdgeIndex, new Edge(){ VertexA = vertexA, VertexB = newVertex});

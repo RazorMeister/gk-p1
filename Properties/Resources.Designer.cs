@@ -119,5 +119,15 @@ namespace Projekt1.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Icon podobny do zasobu (Ikona).
+        /// </summary>
+        internal static System.Drawing.Icon SameSizeEdgesRelation {
+            get {
+                object obj = ResourceManager.GetObject("SameSizeEdgesRelation", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

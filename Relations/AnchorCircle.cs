@@ -24,12 +24,9 @@ namespace Projekt1.Relations
             this.circle.AddRelation(this);
         }
 
-        public override void FixRelation(AdvancedShape movingShape)
+        public override void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack)
         {
-            if (
-                movingShape == this.circle 
-                && movingShape.SelectedShape.GetShapeType() != SimpleShape.ShapeType.CircleEdge
-            )
+            if (movingShape == this.circle || movingShape == this.circle.center)
                 throw new CannotMoveException();
 
             this.circle.center.SetPoint(this.startPoint);

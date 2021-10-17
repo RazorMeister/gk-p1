@@ -49,6 +49,7 @@ namespace Projekt1
             this.fixedRadiusBtn = new System.Windows.Forms.Button();
             this.anchorCircleBtn = new System.Windows.Forms.Button();
             this.almostCompletedLabel = new System.Windows.Forms.Label();
+            this.sameSizeEdgesBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.wrapper)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -211,6 +212,7 @@ namespace Projekt1
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.sameSizeEdgesBtn);
             this.groupBox3.Controls.Add(this.circleTangencyBtn);
             this.groupBox3.Controls.Add(this.parallelEdgesBtn);
             this.groupBox3.Controls.Add(this.fixedEdgeBtn);
@@ -301,6 +303,19 @@ namespace Projekt1
             this.almostCompletedLabel.TabIndex = 11;
             this.almostCompletedLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // sameSizeEdgesBtn
+            // 
+            this.sameSizeEdgesBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.sameSizeEdgesBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.sameSizeEdgesBtn.Location = new System.Drawing.Point(161, 143);
+            this.sameSizeEdgesBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.sameSizeEdgesBtn.Name = "sameSizeEdgesBtn";
+            this.sameSizeEdgesBtn.Size = new System.Drawing.Size(108, 30);
+            this.sameSizeEdgesBtn.TabIndex = 10;
+            this.sameSizeEdgesBtn.Text = "Equal edges";
+            this.sameSizeEdgesBtn.UseVisualStyleBackColor = true;
+            this.sameSizeEdgesBtn.Click += new System.EventHandler(this.sameSizeEdgesBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -351,6 +366,7 @@ namespace Projekt1
         private System.Windows.Forms.Button parallelEdgesBtn;
         private System.Windows.Forms.Button circleTangencyBtn;
         private System.Windows.Forms.Label almostCompletedLabel;
+        private System.Windows.Forms.Button sameSizeEdgesBtn;
     }
 }
 

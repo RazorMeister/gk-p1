@@ -5,19 +5,50 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Projekt1.Relations;
 
 namespace Projekt1.Shapes
 {
     class Edge : SimpleShape
     {
-        public Vertex VertexA { get; set; }
-        public Vertex VertexB { get; set; }
+        private Vertex vertexA;
+        private Vertex vertexB;
+
+        public Vertex VertexA
+        {
+            get => this.vertexA;
+            set
+            {
+                this.vertexA?.RemoveEdge(this);
+                this.vertexA = value;
+                this.vertexA?.AddEdge(this);
+            }
+        }
+
+        public Vertex VertexB
+        {
+            get => this.vertexB;
+            set
+            {
+                this.vertexB?.RemoveEdge(this);
+                this.vertexB = value;
+                this.vertexB?.AddEdge(this);
+            }
+        }
+
         public override ShapeType GetShapeType() => ShapeType.Edge;
 
-        public override void Move(int dX, int dY)
+        public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {
-            this.VertexA.Move(dX, dY);
-            this.VertexB.Move(dX, dY);
+            this.VertexA.Move(dX, dY, relationsStack, false);
+            this.VertexB.Move(dX, dY, relationsStack, false);
+
+            if (addRelationsToFix)
+            {
+                this.AddRelationsToStack(relationsStack);
+                this.vertexA.GetOtherEdge(this)?.AddRelationsToStack(relationsStack);
+                this.vertexB.GetOtherEdge(this)?.AddRelationsToStack(relationsStack);
+            }
         }
 
         // Return a and b from line equation
@@ -43,6 +74,8 @@ namespace Projekt1.Shapes
         public Point GetMiddlePoint()
             => new Point((this.VertexA.X + this.VertexB.X) / 2, (this.VertexA.Y + this.VertexB.Y) / 2);
 
+        public int GetLength() => (int) DrawHelper.PointsDistance(this.VertexA.GetPoint, this.VertexB.GetPoint);
+
         public override void SavePosition()
         {
             this.VertexA.SavePosition();
@@ -55,6 +88,6 @@ namespace Projekt1.Shapes
             this.VertexB.BackUpSavedPosition();
         }
 
-        public override string ToString() => $"({this.VertexA.ToString()}, {this.VertexB.ToString()})";
+        public override string ToString() => $"({this.VertexA.ToString()}, {this.VertexB.ToString()})  - Relations: {this.relations.Count}";
     }
 }

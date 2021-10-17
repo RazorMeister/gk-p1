@@ -19,7 +19,7 @@ namespace Projekt1.Shapes
             CircleCenter = 6
         }
 
-        private List<Relation> relations = new List<Relation>();
+        protected List<Relation> relations = new List<Relation>();
 
         public string Uid { get; private set; }
 
@@ -30,7 +30,7 @@ namespace Projekt1.Shapes
 
         public abstract ShapeType GetShapeType();
 
-        public abstract void Move(int dX, int dY);
+        public abstract void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true);
 
         public abstract override string ToString();
 
@@ -65,6 +65,11 @@ namespace Projekt1.Shapes
             foreach (var relation in this.relations.ToArray())
                 relation.Destroy();
         }
+
+        public virtual void AddRelationsToStack(Stack<Tuple<Relation, SimpleShape>> relationsStack, Type exceptType = null)
+            => this.relations
+                .FindAll(relation => relation.GetType() != exceptType)
+                .ForEach(relation => relationsStack.Push(new Tuple<Relation, SimpleShape>(relation, this)));
 
         /* Destroying */
         public virtual void Destroy()

@@ -21,7 +21,15 @@ namespace Projekt1.Relations
             Active
         }
 
-        public abstract void FixRelation(AdvancedShape movingShape);
+        public string Uid { get; private set; }
+
+
+        protected Relation()
+        {
+            this.Uid = System.Guid.NewGuid().ToString();
+        }
+
+        public abstract void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack);
 
         public abstract void Draw(Bitmap bm, PaintEventArgs e);
 

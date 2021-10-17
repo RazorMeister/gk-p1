@@ -59,6 +59,7 @@
     <Compile Include="Prompt.cs" />
     <Compile Include="Relations\CannotMoveException.cs" />
     <Compile Include="Relations\CircleTangency.cs" />
+    <Compile Include="Relations\SameSizeEdges.cs" />
     <Compile Include="Relations\ParallelEdges.cs" />
     <Compile Include="Relations\FixedEdge.cs" />
     <Compile Include="Relations\FixedRadius.cs" />
@@ -118,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\FixedEdge.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SameSizeEdgesRelation.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

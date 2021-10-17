@@ -101,6 +101,7 @@ namespace Projekt1
             this.relationButtons.Add(typeof(FixedEdge), this.fixedEdgeBtn);
             this.relationButtons.Add(typeof(CircleTangency), this.circleTangencyBtn);
             this.relationButtons.Add(typeof(ParallelEdges), this.parallelEdgesBtn);
+            this.relationButtons.Add(typeof(SameSizeEdges), this.sameSizeEdgesBtn);
 
             foreach (var relationBtn in this.relationButtons)
             {
@@ -259,7 +260,7 @@ namespace Projekt1
                     try
                     {
                         this.currShape.UpdateMoving(this.currPoint);
-                        this.relations.ForEach(relation => relation.FixRelation(this.currShape));
+                        //this.relations.ForEach(relation => relation.FixRelation(this.currShape));
                     }
                     catch (CannotMoveException exception)
                     {
@@ -431,6 +432,7 @@ namespace Projekt1
             {
                 ((Polygon)this.currShape).RemoveCurrentVertex();
                 this.wrapper.Invalidate();
+                this.action = Action.None;
             }
         }
 
@@ -613,6 +615,29 @@ namespace Projekt1
 
                 this.almostCompletedRelation = (TwoShapesRelation)r;
                 this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation) r).GetLeftShapeType())}";
+            }
+            else
+            {
+                r.Destroy();
+                this.relations.Remove(r);
+            }
+
+            this.changeRelationButtonsActive();
+            this.wrapper.Invalidate();
+        }
+
+        private void sameSizeEdgesBtn_Click(object sender, EventArgs e)
+        {
+            Relation r = this.currShape.SelectedShape.GetRelationByType(typeof(SameSizeEdges));
+
+            if (r == null)
+            {
+                r = new SameSizeEdges();
+                ((TwoShapesRelation)r).AddShape(this.currShape.SelectedShape);
+                this.relations.Add(r);
+
+                this.almostCompletedRelation = (TwoShapesRelation)r;
+                this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation)r).GetLeftShapeType())}";
             }
             else
             {

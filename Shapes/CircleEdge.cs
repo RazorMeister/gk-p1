@@ -12,7 +12,7 @@ namespace Projekt1.Shapes
     {
         public override ShapeType GetShapeType() => ShapeType.CircleEdge;
 
-        public override void Move(int dX, int dY) {}
+        public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true) {}
 
         public override string ToString() => $"()";
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Projekt1.Relations;
@@ -24,9 +25,9 @@ namespace Projekt1.Shapes
 
         public override ShapeType GetShapeType() => ShapeType.Circle;
 
-        public override void Move(int dX, int dY)
+        public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {
-            this.center.Move(dX, dY);
+            this.center.Move(dX, dY, relationsStack, false);
         }
 
         public override void UpdateLastPoint(Point p)
@@ -75,10 +76,16 @@ namespace Projekt1.Shapes
 
         protected override void HandleMoving(int dX, int dY)
         {
+            Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
+
             if (this.SelectedShape.GetShapeType() == ShapeType.CircleEdge)
                 this.SetR((int)DrawHelper.PointsDistance(this.center.GetPoint, this.lastPoint));
             else
-                this.SelectedShape.Move(dX, dY);
+                this.SelectedShape.Move(dX, dY, relationsStack);
+
+            this.AddRelationsToStack(relationsStack);
+
+            this.RunRelationsStack(relationsStack);
         }
 
         public override Tuple<SimpleShape, double> GetNearestShape(Point p)

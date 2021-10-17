@@ -22,18 +22,22 @@ namespace Projekt1.Relations
             this.edge.AddRelation(this);
             this.lineLength = lineLength;
 
-            this.FixRelation(null);
+            Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
+            this.FixRelation(null, relationsStack);
         }
 
-        public override void FixRelation(AdvancedShape movingShape)
+        public override void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack)
         {
-            Vertex vertexToMove = movingShape?.SelectedShape == this.edge.VertexA ? this.edge.VertexB : this.edge.VertexA;
+            if (this.edge.GetLength() == this.lineLength)
+                return;
+
+            Vertex vertexToMove = movingShape == this.edge.VertexA ? this.edge.VertexB : this.edge.VertexA;
             Vertex otherVertex = this.edge.VertexA == vertexToMove ? this.edge.VertexB : this.edge.VertexA;
 
             var AB = this.edge.GetLineEquation();
 
             // X = sth
-            if (Math.Abs(AB.Item1) < 0.1 || AB.Item2 == null)
+            if (AB.Item2 == null)
             {
                 int newY = otherVertex.Y + this.lineLength;
 
@@ -41,6 +45,7 @@ namespace Projekt1.Relations
                     newY = otherVertex.Y - this.lineLength;
 
                 vertexToMove.SetPoint(new Point(otherVertex.X, newY));
+                vertexToMove.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
                 return;
             }
 
@@ -52,6 +57,7 @@ namespace Projekt1.Relations
             // Determine in which direction we want to 'move'
             int newX = Math.Abs(vertexToMove.X - newX1) > Math.Abs(vertexToMove.X - newX2) ? newX2 : newX1;
             vertexToMove.SetPoint(new Point(newX, (int) (a * newX + AB.Item2)));
+            vertexToMove.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)

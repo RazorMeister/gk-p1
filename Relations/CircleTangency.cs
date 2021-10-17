@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Security.Cryptography;
@@ -25,13 +26,19 @@ namespace Projekt1.Relations
             if (this.edge != null && this.circle != null)
             {
                 this.Completed = true;
-                this.FixRelation(null);
+
+                Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
+                this.FixRelation(null, relationsStack);
             }
         }
 
-        public override void FixRelation(AdvancedShape movingShape)
+        public override void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack)
         {
             if (!this.Completed) return;
+
+            int startDistance = (int) this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
+            if (startDistance == this.circle.R)
+                return;
 
             // 1 - move circle center
             // 2 - move edge
@@ -41,8 +48,8 @@ namespace Projekt1.Relations
 
             // 1 - moving edge
             // 2 - moving circle
-            int currentlyMovingType = movingShape == circle
-                ? (movingShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.CircleEdge ? 1 : 2)
+            int currentlyMovingType = (movingShape == this.circle.SelectedShape) 
+                ? (movingShape?.GetShapeType() == SimpleShape.ShapeType.CircleEdge ? 1 : 2)
                 : 0;
 
             //Debug.WriteLine($"currentlyMoving: {currentlyMovingType} | hasAnchor: {this.circle.HasRelationByType(typeof(AnchorCircle))} | hasFixed: {this.circle.HasRelationByType(typeof(FixedRadius))}");
@@ -81,6 +88,8 @@ namespace Projekt1.Relations
             }
             else
             {
+                // Problem with it
+
                 var AB = this.edge.GetLineEquation();
 
                 var newA = -1 / AB.Item1;
@@ -105,12 +114,12 @@ namespace Projekt1.Relations
                 if (moveType == 2)
                 {
                     // Move edge
-                    this.edge.Move(-(int)(tmp * a), -(int)(tmp * b));
+                    this.edge.Move(-(int)(tmp * a), -(int)(tmp * b), relationsStack);
                 }
                 else
                 {
                     // Move circle center
-                    this.circle.center.Move((int)(tmp * a), (int)(tmp * b));
+                    this.circle.center.Move((int)(tmp * a), (int)(tmp * b), relationsStack);
                 }
             }
         }
