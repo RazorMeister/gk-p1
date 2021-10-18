@@ -38,25 +38,29 @@ namespace Projekt1.Relations
             int newX;
             int newY;
 
+            Vertex vertexToMove = otherEdge.VertexB.GetOtherEdge(otherEdge).GetRelationsNumberExcept(null) == 0
+                ? otherEdge.VertexB : otherEdge.VertexA;
+            Vertex otherVertex = otherEdge.VertexA == vertexToMove ? otherEdge.VertexB : otherEdge.VertexA;
+
             // Line has equation like: X = N
             if (AB.Item2 == null)
             {
                 newY = Int32.MaxValue; // We just want to change X 
-                newX = otherEdge.VertexA.X;
+                newX =otherVertex.X;
             }
             else
             {
-                var newB = otherEdge.VertexA.Y - AB.Item1 * otherEdge.VertexA.X;
-                newY = (int)(AB.Item1 * otherEdge.VertexB.X + newB);
-                newX = (int)((otherEdge.VertexB.Y - newB) / AB.Item1);
+                var newB = otherVertex.Y - AB.Item1 * otherVertex.X;
+                newY = (int)(AB.Item1 * vertexToMove.X + newB);
+                newX = (int)((vertexToMove.Y - newB) / AB.Item1);
             }
 
-            if (Math.Abs(newX - otherEdge.VertexB.X) < Math.Abs(newY - otherEdge.VertexB.Y))
-                otherEdge.VertexB.SetPoint(new Point(newX, otherEdge.VertexB.Y));
+            if (Math.Abs(newX - vertexToMove.X) < Math.Abs(newY - vertexToMove.Y))
+                vertexToMove.SetPoint(new Point(newX, vertexToMove.Y));
             else
-                otherEdge.VertexB.SetPoint(new Point(otherEdge.VertexB.X, newY));
+                vertexToMove.SetPoint(new Point(vertexToMove.X, newY));
 
-            otherEdge.VertexB.GetOtherEdge(otherEdge)?.AddRelationsToStack(relationsStack);
+            vertexToMove.GetOtherEdge(otherEdge)?.AddRelationsToStack(relationsStack);
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)

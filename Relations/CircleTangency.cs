@@ -147,7 +147,7 @@ namespace Projekt1.Relations
         public override SimpleShape.ShapeType? GetLeftShapeType()
         {
             return this.Completed
-                ? null
+                ? SimpleShape.ShapeType.Edge // Fixme
                 : (this.circle != null ? SimpleShape.ShapeType.Edge : SimpleShape.ShapeType.Circle);
         }
 
