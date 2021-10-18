@@ -126,8 +126,7 @@ namespace Projekt1.Relations
             if (this.firstEdge != null && this.secondEdge != null)
             {
                 this.Completed = true;
-                Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
-                this.FixRelation(null, relationsStack);
+                this.InitRelation();
             }
         }
 

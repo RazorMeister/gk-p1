@@ -76,7 +76,7 @@ namespace Projekt1.Shapes
 
         protected override void HandleMoving(int dX, int dY)
         {
-            Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
+            var relationsStack = RelationManager.GetRelationsStack();
 
             if (this.SelectedShape.GetShapeType() == ShapeType.CircleEdge)
                 this.SetR((int)DrawHelper.PointsDistance(this.center.GetPoint, this.lastPoint));
@@ -85,7 +85,7 @@ namespace Projekt1.Shapes
 
             this.AddRelationsToStack(relationsStack);
 
-            this.RunRelationsStack(relationsStack);
+            RelationManager.RunRelations(relationsStack);
         }
 
         public override Tuple<SimpleShape, double> GetNearestShape(Point p)

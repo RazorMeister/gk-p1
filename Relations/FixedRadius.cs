@@ -22,7 +22,7 @@ namespace Projekt1.Relations
 
             this.circle.AddRelation(this);
 
-            this.FixRelation(null, null);
+            this.InitRelation();
         }
 
         public override void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack)

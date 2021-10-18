@@ -33,6 +33,13 @@ namespace Projekt1.Relations
 
         public abstract void Draw(Bitmap bm, PaintEventArgs e);
 
+        protected void InitRelation()
+        {
+            var relationsStack = RelationManager.GetRelationsStack();
+            this.FixRelation(null, relationsStack);
+            RelationManager.RunRelations(relationsStack);
+        }
+
         public virtual void Destroy() => this.Destroyed = true;
     }
 }

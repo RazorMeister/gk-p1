@@ -22,8 +22,7 @@ namespace Projekt1.Relations
             this.edge.AddRelation(this);
             this.lineLength = lineLength;
 
-            Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
-            this.FixRelation(null, relationsStack);
+            this.InitRelation();
         }
 
         public override void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack)

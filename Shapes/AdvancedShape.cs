@@ -55,41 +55,9 @@ namespace Projekt1.Shapes
 
         protected virtual void HandleMoving(int dX, int dY)
         {
-            Stack<Tuple<Relation, SimpleShape>> relationsStack = new Stack<Tuple<Relation, SimpleShape>>();
+            var relationsStack = RelationManager.GetRelationsStack();
             this.SelectedShape.Move(dX, dY, relationsStack);
-            this.RunRelationsStack(relationsStack);
-        }
-
-        protected void RunRelationsStack(Stack<Tuple<Relation, SimpleShape>> relationsStack)
-        {
-            int fixesNumber = 0;
-            string lastRelationUid = null;
-
-            while (true)
-            {
-                if (relationsStack.Count == 0)
-                    break;
-
-                var relationTuple = relationsStack.Pop();
-
-                if (relationTuple.Item1.Uid == lastRelationUid)
-                    continue;
-
-                lastRelationUid = relationTuple.Item1.Uid;
-
-                //Debug.WriteLine($"{relationTuple.Item1.GetType()} - {relationTuple.Item1.Uid}");
-                relationTuple.Item1.FixRelation(relationTuple.Item2, relationsStack);
-                fixesNumber++;
-
-                if (fixesNumber >= 30)
-                {
-                    Debug.WriteLine($"{fixesNumber}");
-                    Debug.WriteLine("");
-                    throw new CannotMoveException();
-                }
-            }
-
-            //Debug.WriteLine($"{fixesNumber}");
+            RelationManager.RunRelations(relationsStack);
         }
 
         public override void AddRelationsToStack(Stack<Tuple<Relation, SimpleShape>> relationsStack, Type exceptType = null)

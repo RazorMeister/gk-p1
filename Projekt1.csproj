@@ -59,6 +59,7 @@
     <Compile Include="Prompt.cs" />
     <Compile Include="Relations\CannotMoveException.cs" />
     <Compile Include="Relations\CircleTangency.cs" />
+    <Compile Include="Relations\RelationManager.cs" />
     <Compile Include="Relations\SameSizeEdges.cs" />
     <Compile Include="Relations\ParallelEdges.cs" />
     <Compile Include="Relations\FixedEdge.cs" />
