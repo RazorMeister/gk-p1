@@ -36,9 +36,11 @@ namespace Projekt1.Relations
         {
             e.Graphics.DrawIcon(
                 new Icon(Resources.AnchorCircleRelation, 20, 20), 
-                this.circle.center.X - 25, 
+                this.circle.center.X - 35, 
                 this.circle.center.Y - 8
             );
+
+            this.DrawId(e, this.circle.center.X - 20, this.circle.center.Y - 8);
         }
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)

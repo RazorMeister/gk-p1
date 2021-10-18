@@ -12,6 +12,10 @@ namespace Projekt1.Relations
 {
     abstract class Relation
     {
+        public static int Id { get; set; } = 0;
+
+        protected int id;
+
         public bool Destroyed { get; private set; } = false;
 
         public enum BtnStatus
@@ -26,12 +30,24 @@ namespace Projekt1.Relations
 
         protected Relation()
         {
+            this.id = ++Relation.Id; 
             this.Uid = System.Guid.NewGuid().ToString();
         }
 
         public abstract void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack);
 
         public abstract void Draw(Bitmap bm, PaintEventArgs e);
+
+        protected void DrawId(PaintEventArgs e, int x, int y)
+        {
+            e.Graphics.DrawString(
+                this.id.ToString(), 
+                new Font("Consolas", 9, FontStyle.Bold), 
+                Brushes.Gray, 
+                x, 
+                y
+            );
+        }
 
         protected void InitRelation()
         {

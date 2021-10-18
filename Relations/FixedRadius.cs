@@ -40,6 +40,8 @@ namespace Projekt1.Relations
                 this.circle.center.X - 25,
                 this.circle.center.Y - 25
             );
+
+            this.DrawId(e, this.circle.center.X - 10, this.circle.center.Y - 25);
         }
 
         public override void Destroy()

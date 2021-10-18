@@ -265,7 +265,6 @@ namespace Projekt1
                     catch (CannotMoveException exception)
                     {
                         this.shapes.ForEach(shape => shape.BackUpSavedPosition());
-                        Debug.WriteLine("Cannot move");
                     }
                     
                     break;

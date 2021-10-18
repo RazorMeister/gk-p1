@@ -84,9 +84,11 @@ namespace Projekt1.Relations
 
             var firstMiddlePoint = this.firstEdge.GetMiddlePoint();
             e.Graphics.DrawIcon(icon, firstMiddlePoint.X - 18, firstMiddlePoint.Y - 18);
+            this.DrawId(e, firstMiddlePoint.X - 3, firstMiddlePoint.Y - 18);
 
             var secondMiddlePoint = this.secondEdge.GetMiddlePoint();
             e.Graphics.DrawIcon(icon, secondMiddlePoint.X - 18, secondMiddlePoint.Y - 18);
+            this.DrawId(e, secondMiddlePoint.X - 3, secondMiddlePoint.Y - 18);
         }
 
         public override void Destroy()

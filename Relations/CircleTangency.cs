@@ -132,7 +132,10 @@ namespace Projekt1.Relations
             var d = (int)((this.circle.R + 18) / 1.41);
 
             e.Graphics.DrawIcon(icon, this.circle.center.X - d, this.circle.center.Y - d);
+            this.DrawId(e, this.circle.center.X - d + 15, this.circle.center.Y - d);
+
             e.Graphics.DrawIcon(icon, middlePoint.X - 18, middlePoint.Y - 18);
+            this.DrawId(e, middlePoint.X - 3, middlePoint.Y - 18);
         }
 
         public override void Destroy()

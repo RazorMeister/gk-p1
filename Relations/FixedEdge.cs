@@ -67,6 +67,8 @@ namespace Projekt1.Relations
                 middlePoint.X - 18, 
                 middlePoint.Y - 18
             );
+
+            this.DrawId(e, middlePoint.X - 3, middlePoint.Y - 18);
         }
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)
