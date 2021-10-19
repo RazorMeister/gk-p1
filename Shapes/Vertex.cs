@@ -36,7 +36,11 @@ namespace Projekt1.Shapes
             this.Y += dY;
 
             if (addRelationsToFix)
-                this.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
+                this.Edges.ForEach(edge =>
+                {
+                    edge.FromVertex = this;
+                    edge.AddRelationsToStack(relationsStack);
+                });
         }
 
         public override void SavePosition() => this.savedP = new Point(this.p.X, this.p.Y);
@@ -47,7 +51,12 @@ namespace Projekt1.Shapes
 
         public void RemoveEdge(Edge edge) => this.Edges.Remove(edge);
 
-        public Edge GetOtherEdge(Edge edge) => this.Edges.First(_edge => _edge != edge);
+        public Edge GetOtherEdge(Edge edge)
+        {
+            Edge edgeToReturn = this.Edges.First(_edge => _edge != edge);
+            edgeToReturn.FromVertex = this;
+            return edgeToReturn;
+        }
 
         public override string ToString() => $"({this.X}, {this.Y})";
     }

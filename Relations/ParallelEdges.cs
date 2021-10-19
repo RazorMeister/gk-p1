@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Projekt1.Properties;
@@ -40,10 +41,10 @@ namespace Projekt1.Relations
             Vertex otherVertex = otherEdge.VertexA == vertexToMove ? otherEdge.VertexB : otherEdge.VertexA;
 
             // Line has equation like: X = N
-            if (AB.Item2 == null)
+            if (AB.Item2 == null || (AB.Item2 != null && Math.Abs(AB.Item1) > 20))
             {
                 newY = Int32.MaxValue; // We just want to change X 
-                newX =otherVertex.X;
+                newX = otherVertex.X;
             }
             else
             {

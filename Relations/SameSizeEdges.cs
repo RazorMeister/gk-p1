@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Projekt1.Properties;
@@ -49,15 +50,20 @@ namespace Projekt1.Relations
             }
 
             // X = sth
-            if (AB.Item2 == null)
+            if (AB.Item2 == null || (AB.Item2 != null && Math.Abs(AB.Item1) > 20))
             {
-                int newY = otherVertex.Y + this.lineLength;
+                int newY1 = otherVertex.Y + this.lineLength;
+                int newY2 = otherVertex.Y - this.lineLength;
 
-                if (Math.Abs(vertexToMove.Y - newY) < Math.Abs(vertexToMove.Y + newY))
-                    newY = otherVertex.Y - this.lineLength;
+                int newY = newY1;
+
+                if (Math.Abs(vertexToMove.Y - newY1) > Math.Abs(vertexToMove.Y - newY2))
+                    newY = newY2;
 
                 vertexToMove.SetPoint(new Point(otherVertex.X, newY));
-                vertexToMove.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
+                vertexToMove.Edges
+                    .Find(edge => edge != this.firstEdge && edge != this.secondEdge)
+                    .AddRelationsToStack(relationsStack);
                 return;
             }
 
@@ -71,8 +77,8 @@ namespace Projekt1.Relations
             vertexToMove.SetPoint(new Point(newX, (int)(a * newX + AB.Item2)));
 
             vertexToMove.Edges
-                .FindAll(edge => edge != this.firstEdge && edge != this.secondEdge)
-                .ForEach(edge => edge.AddRelationsToStack(relationsStack));
+                .Find(edge => edge != this.firstEdge && edge != this.secondEdge)
+                .AddRelationsToStack(relationsStack);
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)

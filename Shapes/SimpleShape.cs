@@ -39,7 +39,11 @@ namespace Projekt1.Shapes
         public virtual int GetRelationsNumberExcept(Type? relationType) 
             => this.relations.FindAll(relation => relation.GetType() != relationType).Count;
 
-        public void DestroyRelations() => this.relations.ForEach(relation => relation.Destroy());
+        public void DestroyRelations()
+        {
+            foreach (var relation in this.relations.ToArray())
+                relation.Destroy();
+        }
 
         public virtual void AddRelationsToStack(Stack<Tuple<Relation, SimpleShape>> relationsStack, Type exceptType = null)
             => this.relations

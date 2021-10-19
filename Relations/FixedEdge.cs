@@ -26,21 +26,24 @@ namespace Projekt1.Relations
             if (this.edge.GetLength() == this.lineLength)
                 return;
 
-            Vertex vertexToMove = movingShape == this.edge.VertexA ? this.edge.VertexB : this.edge.VertexA;
+            Vertex vertexToMove = (movingShape is Edge && ((Edge)movingShape).FromVertex == this.edge.VertexA) ? this.edge.VertexB : this.edge.VertexA;
             Vertex otherVertex = this.edge.VertexA == vertexToMove ? this.edge.VertexB : this.edge.VertexA;
 
             var AB = this.edge.GetLineEquation();
 
             // X = sth
-            if (AB.Item2 == null)
+            if (AB.Item2 == null || (AB.Item2 != null && Math.Abs(AB.Item1) > 20))
             {
-                int newY = otherVertex.Y + this.lineLength;
+                int newY1 = otherVertex.Y + this.lineLength;
+                int newY2 = otherVertex.Y - this.lineLength;
 
-                if (Math.Abs(vertexToMove.Y - newY) < Math.Abs(vertexToMove.Y + newY))
-                    newY = otherVertex.Y - this.lineLength;
+                int newY = newY1;
+
+                if (Math.Abs(vertexToMove.Y - newY1) > Math.Abs(vertexToMove.Y - newY2))
+                    newY = newY2;
 
                 vertexToMove.SetPoint(new Point(otherVertex.X, newY));
-                vertexToMove.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
+                vertexToMove.GetOtherEdge(this.edge).AddRelationsToStack(relationsStack);
                 return;
             }
 
@@ -52,7 +55,7 @@ namespace Projekt1.Relations
             // Determine in which direction we want to 'move'
             int newX = Math.Abs(vertexToMove.X - newX1) > Math.Abs(vertexToMove.X - newX2) ? newX2 : newX1;
             vertexToMove.SetPoint(new Point(newX, (int) (a * newX + AB.Item2)));
-            vertexToMove.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
+            vertexToMove.GetOtherEdge(this.edge).AddRelationsToStack(relationsStack);
         }
 
         public override void Draw(Bitmap bm, PaintEventArgs e)
@@ -71,6 +74,12 @@ namespace Projekt1.Relations
             return shape.SelectedShape is Edge && shape.SelectedShape.GetRelationsNumberExcept(typeof(FixedEdge)) == 0
                 ? (shape.HasRelationByType(typeof(FixedEdge)) ? BtnStatus.Active : BtnStatus.Enabled)
                 : BtnStatus.Disabled;
+        }
+
+        public override void Destroy()
+        {
+            this.edge.RemoveRelation(this);
+            base.Destroy();
         }
     }
 }

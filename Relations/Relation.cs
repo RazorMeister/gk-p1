@@ -48,7 +48,20 @@ namespace Projekt1.Relations
         {
             var relationsStack = RelationManager.GetRelationsStack();
             this.FixRelation(null, relationsStack);
-            RelationManager.RunRelations(relationsStack);
+
+            try
+            {
+                RelationManager.RunRelations(relationsStack);
+            }
+            catch (CannotMoveException exception)
+            {
+                MessageBox.Show(
+                    "Cannot set that relations because there was an error while trying to fix other relations!",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
 
         public virtual void Destroy() => this.Destroyed = true;

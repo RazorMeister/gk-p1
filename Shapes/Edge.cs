@@ -32,6 +32,8 @@ namespace Projekt1.Shapes
             }
         }
 
+        public Vertex FromVertex { get; set; }
+
         public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {
             this.VertexA.Move(dX, dY, relationsStack, false);

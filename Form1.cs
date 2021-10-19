@@ -120,26 +120,33 @@ namespace Projekt1
 
         private void createDefaultShapes()
         {
-            var newShape = new Polygon(new Point(300, 100));
-            newShape.AddLine(new Point(500, 170));
+            var newShape = new Polygon(new Point(300, 200));
+            newShape.AddLine(new Point(500, 270));
             newShape.AddLine(new Point(450, 400));
             newShape.AddLine(new Point(300, 250));
             newShape.AddLine(new Point(100, 300));
             newShape.AddLine(new Point(200, 150));
-            newShape.UpdateLastPoint(new Point(300, 100));
+            newShape.UpdateLastPoint(new Point(300, 200));
             newShape.FinishDrawing();
-
             this.shapes.Add(newShape);
 
-            var newCircle = new Circle(new Point(350, 20));
+            var newShape2 = new Polygon(new Point(50, 50));
+            newShape2.AddLine(new Point(150, 60));
+            newShape2.AddLine(new Point(160, 160));
+            newShape2.AddLine(new Point(50, 150));
+            newShape2.AddLine(new Point(50, 50));
+            newShape2.UpdateLastPoint(new Point(50, 50));
+            newShape2.FinishDrawing();
+            this.shapes.Add(newShape2);
+
+            var newCircle = new Circle(new Point(400, 150));
             newCircle.SetR(100);
             newCircle.FinishDrawing();
+            this.shapes.Add(newCircle);
 
-            var newCircle2 = new Circle(new Point(200, 400));
+            var newCircle2 = new Circle(new Point(170, 460));
             newCircle2.SetR(100);
             newCircle2.FinishDrawing();
-
-            this.shapes.Add(newCircle);
             this.shapes.Add(newCircle2);
 
             var parallelEdges = new ParallelEdges();
@@ -147,8 +154,15 @@ namespace Projekt1
             parallelEdges.AddShape(newShape.Edges[5]);
             this.relations.Add(parallelEdges);
 
-            this.relations.Add(new AnchorCircle(newCircle2));
+            var equalEdges = new SameSizeEdges();
+            equalEdges.AddShape(newShape2.Edges[1]);
+            equalEdges.AddShape(newShape2.Edges[3]);
+            this.relations.Add(equalEdges);
+
+            this.relations.Add(new FixedEdge(newShape.Edges[2], 170));
+
             this.relations.Add(new FixedRadius(newCircle, 40));
+            this.relations.Add(new AnchorCircle(newCircle2));
 
             var circleTangency = new CircleTangency();
             circleTangency.AddShape(newCircle);
@@ -260,7 +274,6 @@ namespace Projekt1
                     try
                     {
                         this.currShape.UpdateMoving(this.currPoint);
-                        //this.relations.ForEach(relation => relation.FixRelation(this.currShape));
                     }
                     catch (CannotMoveException exception)
                     {
