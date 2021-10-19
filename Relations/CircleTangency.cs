@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Security.Cryptography;
 using System.Windows.Forms;
 using Projekt1.Properties;
 using Projekt1.Shapes;
@@ -16,7 +14,7 @@ namespace Projekt1.Relations
 
         public override void AddShape(SimpleShape shape)
         {
-            if (shape.GetShapeType() == SimpleShape.ShapeType.Circle)
+            if (shape is Circle)
                 this.circle = (Circle)shape;
             else
                 this.edge = (Edge)shape;
@@ -47,7 +45,7 @@ namespace Projekt1.Relations
             // 1 - moving edge
             // 2 - moving circle
             int currentlyMovingType = (movingShape == this.circle.SelectedShape) 
-                ? (movingShape?.GetShapeType() == SimpleShape.ShapeType.CircleEdge ? 1 : 2)
+                ? (movingShape is CircleEdge ? 1 : 2)
                 : 0;
 
             //Debug.WriteLine($"currentlyMoving: {currentlyMovingType} | hasAnchor: {this.circle.HasRelationByType(typeof(AnchorCircle))} | hasFixed: {this.circle.HasRelationByType(typeof(FixedRadius))}");
@@ -126,16 +124,12 @@ namespace Projekt1.Relations
         {
             if (!this.Completed) return;
 
-            var icon = new Icon(Resources.CircleTangencyRelation, 20, 20);
             var middlePoint = this.edge.GetMiddlePoint();
 
             var d = (int)((this.circle.R + 18) / 1.41);
 
-            e.Graphics.DrawIcon(icon, this.circle.center.X - d, this.circle.center.Y - d);
-            this.DrawId(e, this.circle.center.X - d + 15, this.circle.center.Y - d);
-
-            e.Graphics.DrawIcon(icon, middlePoint.X - 18, middlePoint.Y - 18);
-            this.DrawId(e, middlePoint.X - 3, middlePoint.Y - 18);
+            this.DrawIcon(e, Resources.CircleTangencyRelation, this.circle.center.X - d, this.circle.center.Y - d);
+            this.DrawIcon(e, Resources.CircleTangencyRelation, middlePoint.X - 18, middlePoint.Y - 18);
         }
 
         public override void Destroy()
@@ -145,11 +139,11 @@ namespace Projekt1.Relations
             base.Destroy();
         }
 
-        public override SimpleShape.ShapeType? GetLeftShapeType()
+        public override Type GetLeftShapeType()
         {
             return this.Completed
-                ? SimpleShape.ShapeType.Edge // Fixme
-                : (this.circle != null ? SimpleShape.ShapeType.Edge : SimpleShape.ShapeType.Circle);
+                ? null
+                : (this.circle != null ? typeof(Edge) : typeof(Circle));
         }
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)
@@ -157,7 +151,7 @@ namespace Projekt1.Relations
             if (shape.GetType() == typeof(Circle))
                 return shape.HasRelationByType(typeof(CircleTangency)) ? BtnStatus.Active : BtnStatus.Enabled;
 
-            if (shape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge)
+            if (shape.SelectedShape is Edge)
             {
                 return shape.SelectedShape.HasRelationByType(typeof(CircleTangency))
                     ? BtnStatus.Active

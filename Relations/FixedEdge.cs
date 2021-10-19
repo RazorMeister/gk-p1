@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Projekt1.Properties;
 using Projekt1.Shapes;
@@ -62,18 +58,17 @@ namespace Projekt1.Relations
         public override void Draw(Bitmap bm, PaintEventArgs e)
         {
             var middlePoint = this.edge.GetMiddlePoint();
-            e.Graphics.DrawIcon(
-                new Icon(Resources.FixedEdgeRelation, 20, 20), 
+            this.DrawIcon(
+                e,
+                Resources.FixedEdgeRelation, 
                 middlePoint.X - 18, 
                 middlePoint.Y - 18
             );
-
-            this.DrawId(e, middlePoint.X - 3, middlePoint.Y - 18);
         }
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)
         {
-            return shape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge && shape.SelectedShape.GetRelationsNumberExcept(typeof(FixedEdge)) == 0
+            return shape.SelectedShape is Edge && shape.SelectedShape.GetRelationsNumberExcept(typeof(FixedEdge)) == 0
                 ? (shape.HasRelationByType(typeof(FixedEdge)) ? BtnStatus.Active : BtnStatus.Enabled)
                 : BtnStatus.Disabled;
         }

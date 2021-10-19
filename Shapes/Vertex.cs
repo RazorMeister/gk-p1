@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Projekt1.Relations;
 
 namespace Projekt1.Shapes
@@ -29,14 +26,9 @@ namespace Projekt1.Shapes
 
         public Point GetPoint => this.p;
 
-        public Vertex(Point p)
-        {
-            this.p = p;
-        }
+        public Vertex(Point p) => this.p = p;
 
         public void SetPoint(Point p) => this.p = p;
-
-        public override ShapeType GetShapeType() => ShapeType.Vertex;
 
         public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {
@@ -44,9 +36,7 @@ namespace Projekt1.Shapes
             this.Y += dY;
 
             if (addRelationsToFix)
-            {
                 this.Edges.ForEach(edge => edge.AddRelationsToStack(relationsStack));
-            }
         }
 
         public override void SavePosition() => this.savedP = new Point(this.p.X, this.p.Y);

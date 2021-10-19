@@ -65,9 +65,9 @@ namespace Projekt1
                             drawPolygon: true, 
                             drawCircle: true,
                             addVertex: this.currShape.GetType() == typeof(Polygon)
-                                       && this.currShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge,
+                                       && this.currShape.SelectedShape is Edge,
                             removeVertex: this.currShape.GetType() == typeof(Polygon)
-                                          && this.currShape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Vertex,
+                                          && this.currShape.SelectedShape is Vertex,
                             removeShape: true
                         );
                         this.changeRelationButtonsActive();
@@ -342,13 +342,13 @@ namespace Projekt1
 
                     if (this.almostCompletedRelation != null)
                     {
-                        SimpleShape.ShapeType? leftShapeType = this.almostCompletedRelation.GetLeftShapeType();
+                        Type leftShapeType = this.almostCompletedRelation.GetLeftShapeType();
 
                         if (leftShapeType != null)
                         {
-                            if (this.currShape.GetShapeType() == leftShapeType)
+                            if (this.currShape.GetType() == leftShapeType)
                                 this.almostCompletedRelation.AddShape(this.currShape);
-                            else if (this.currShape.SelectedShape.GetShapeType() == leftShapeType)
+                            else if (this.currShape.SelectedShape.GetType() == leftShapeType)
                                 this.almostCompletedRelation.AddShape(this.currShape.SelectedShape);
                         }
 
@@ -392,60 +392,6 @@ namespace Projekt1
             e.Graphics.DrawImage(bm, 0, 0);
         }
 
-        private void polygonBtn_Click(object sender, EventArgs e)
-        {
-            this.currDrawingOption = DrawingOptions.Polygon;
-            this.currAction = Action.None;
-            this.wrapper.Invalidate();
-        }
-
-        private void circleBtn_Click(object sender, EventArgs e)
-        {
-            this.currDrawingOption = DrawingOptions.Circle;
-            this.currAction = Action.None;
-            this.wrapper.Invalidate();
-        }
-
-        private void ClearForm()
-        {
-            foreach (var shape in this.shapes)
-                shape.Destroy();
-
-            this.shapes.Clear();
-            this.currAction = Action.None;
-            this.wrapper.Invalidate();
-        }
-
-        private void addVertexBtn_Click(object sender, EventArgs e)
-        {
-            if (this.currShape != null && this.currShape is Polygon)
-            {
-                ((Polygon)this.currShape).AddVertexOnEdge();
-                this.wrapper.Invalidate();
-            }
-        }
-
-        private void removeVertexBtn_Click(object sender, EventArgs e)
-        {
-            if (this.currShape != null && this.currShape is Polygon)
-            {
-                ((Polygon)this.currShape).RemoveCurrentVertex();
-                this.wrapper.Invalidate();
-                this.action = Action.None;
-            }
-        }
-
-        private void removeShapeBtn_Click(object sender, EventArgs e)
-        {
-            if (this.currShape != null)
-            {
-                this.currShape.Destroy();
-                this.shapes.Remove(this.currShape);
-                this.currAction = Action.None;
-                this.wrapper.Invalidate();
-            }
-        }
-
         private void changeButtonsEnabled(
             bool drawPolygon = false,
             bool drawCircle = false,
@@ -465,7 +411,7 @@ namespace Projekt1
         {
             List<Type> relationTypes = this.currShape != null ? this.currShape.GetAllRelationTypes() : new List<Type>();
 
-            if (this.currShape?.SelectedShape != null) 
+            if (this.currShape?.SelectedShape != null)
                 relationTypes.AddRange(this.currShape.SelectedShape.GetAllRelationTypes());
 
             foreach (var relationBtn in this.relationButtons)
@@ -475,177 +421,15 @@ namespace Projekt1
                 if (method == null)
                     continue;
 
-                Relation.BtnStatus btnStatus = this.currShape == null 
-                    ? Relation.BtnStatus.Disabled 
-                    : (Relation.BtnStatus)method.Invoke(null, new object[]{this.currShape});
+                Relation.BtnStatus btnStatus = this.currShape == null
+                    ? Relation.BtnStatus.Disabled
+                    : (Relation.BtnStatus)method.Invoke(null, new object[] { this.currShape });
 
                 relationBtn.Value.FlatAppearance.BorderColor =
                     btnStatus == Relation.BtnStatus.Active ? Color.Green : Color.Black;
 
                 relationBtn.Value.Enabled = btnStatus != Relation.BtnStatus.Disabled;
             }
-        }
-
-        private void anchorCircleBtn_Click(object sender, EventArgs e)
-        {
-            Relation r = this.currShape.GetRelationByType(typeof(AnchorCircle));
-
-            if (r == null)
-            {
-                r = new AnchorCircle((Circle) this.currShape);
-                this.relations.Add(r);
-            }
-            else
-            {
-                r.Destroy();
-                this.relations.Remove(r);
-            }
-
-            this.changeRelationButtonsActive();
-            this.wrapper.Invalidate();
-        }
-
-        private void fixedRadiusBtn_Click(object sender, EventArgs e)
-        {
-            Relation r = this.currShape.GetRelationByType(typeof(FixedRadius));
-
-            if (r == null)
-            {
-                using (Prompt prompt = new Prompt(
-                    "Please provide radius length", 
-                    "Provide radius length", 
-                    ((Circle)this.currShape).R.ToString()
-                ))
-                {
-                    string result = prompt.Result;
-
-                    if (result != "")
-                    {
-                        r = new FixedRadius((Circle)this.currShape, Int32.Parse(result));
-                        this.relations.Add(r);
-                    }
-                }
-            }
-            else
-            {
-                r.Destroy();
-                this.relations.Remove(r);
-            }
-
-            this.changeRelationButtonsActive();
-            this.wrapper.Invalidate();
-        }
-
-        private void fixedEdgeBtn_Click(object sender, EventArgs e)
-        {
-            Relation r = this.currShape.SelectedShape.GetRelationByType(typeof(FixedEdge));
-
-            if (r == null)
-            {
-                Edge edge = (Edge) this.currShape.SelectedShape;
-
-                int edgeLength = (int)DrawHelper.PointsDistance(
-                    edge.VertexA.GetPoint,
-                    edge.VertexB.GetPoint
-                );
-
-                using (Prompt prompt = new Prompt(
-                    "Please provide edge length",
-                    "Provide edge length",
-                    edgeLength.ToString()
-                ))
-                {
-                    string result = prompt.Result;
-
-                    if (result != "")
-                    {
-                        r = new FixedEdge(edge, Int32.Parse(result));
-                        this.relations.Add(r);
-                    }
-                }
-            }
-            else
-            {
-                r.Destroy();
-                this.relations.Remove(r);
-            }
-
-            this.changeRelationButtonsActive();
-            this.wrapper.Invalidate();
-        }
-
-        private void circleTangencyBtn_Click(object sender, EventArgs e)
-        {
-            Relation r = this.currShape.GetRelationByType(typeof(CircleTangency)) 
-                         ?? this.currShape.SelectedShape.GetRelationByType(typeof(CircleTangency));
-
-            if (r == null)
-            {
-                r = new CircleTangency();
-                this.relations.Add(r);
-
-                if (this.currShape.GetShapeType() == SimpleShape.ShapeType.Circle)
-                    ((CircleTangency)r).AddShape(this.currShape);
-                else
-                    ((CircleTangency)r).AddShape(this.currShape.SelectedShape);
-
-                this.almostCompletedRelation = (TwoShapesRelation)r;
-                this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation)r).GetLeftShapeType())}";
-            }
-            else
-            {
-                r.Destroy();
-                this.relations.Remove(r);
-            }
-
-            this.changeRelationButtonsActive();
-            this.wrapper.Invalidate();
-        }
-
-        private void parallelEdgesBtn_Click(object sender, EventArgs e)
-        {
-            Relation r = this.currShape.SelectedShape.GetRelationByType(typeof(ParallelEdges));
-
-            if (r == null)
-            {
-                r = new ParallelEdges();
-                ((TwoShapesRelation)r).AddShape(this.currShape.SelectedShape);
-                this.relations.Add(r);
-
-                this.almostCompletedRelation = (TwoShapesRelation)r;
-                this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation) r).GetLeftShapeType())}";
-            }
-            else
-            {
-                r.Destroy();
-                this.relations.Remove(r);
-            }
-
-            this.changeRelationButtonsActive();
-            this.wrapper.Invalidate();
-        }
-
-        private void sameSizeEdgesBtn_Click(object sender, EventArgs e)
-        {
-            Relation r = this.currShape.SelectedShape.GetRelationByType(typeof(SameSizeEdges));
-
-            if (r == null)
-            {
-                r = new SameSizeEdges();
-                ((TwoShapesRelation)r).AddShape(this.currShape.SelectedShape);
-                this.relations.Add(r);
-
-                this.almostCompletedRelation = (TwoShapesRelation)r;
-                this.almostCompletedLabel.Text = $"Select {Enum.GetName(typeof(SimpleShape.ShapeType), ((TwoShapesRelation)r).GetLeftShapeType())}";
-            }
-            else
-            {
-                r.Destroy();
-                this.relations.Remove(r);
-            }
-
-            this.changeRelationButtonsActive();
-            this.wrapper.Invalidate();
         }
     }
 }

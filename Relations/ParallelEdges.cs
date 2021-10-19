@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Projekt1.Properties;
@@ -17,8 +16,6 @@ namespace Projekt1.Relations
         {
             Tuple<double, double?> AB;
             Edge otherEdge;
-
-            //Debug.WriteLine($"{movingShape?.GetShapeType()}");
 
             if (firstEdge == movingShape)
             {
@@ -67,15 +64,11 @@ namespace Projekt1.Relations
         {
             if (!this.Completed) return;
 
-            var icon = new Icon(Resources.ParallelEdgesRelation, 20, 20);
-
             var firstMiddlePoint = this.firstEdge.GetMiddlePoint();
-            e.Graphics.DrawIcon(icon, firstMiddlePoint.X - 18, firstMiddlePoint.Y - 18);
-            this.DrawId(e, firstMiddlePoint.X - 3, firstMiddlePoint.Y - 18);
+            this.DrawIcon(e, Resources.ParallelEdgesRelation, firstMiddlePoint.X - 18, firstMiddlePoint.Y - 18);
 
             var secondMiddlePoint = this.secondEdge.GetMiddlePoint();
-            e.Graphics.DrawIcon(icon, secondMiddlePoint.X - 18, secondMiddlePoint.Y - 18);
-            this.DrawId(e, secondMiddlePoint.X - 3, secondMiddlePoint.Y - 18);
+            this.DrawIcon(e, Resources.ParallelEdgesRelation, secondMiddlePoint.X - 18, secondMiddlePoint.Y - 18);
         }
 
         public override void Destroy()
@@ -85,10 +78,10 @@ namespace Projekt1.Relations
             base.Destroy();
         }
 
-        public override SimpleShape.ShapeType? GetLeftShapeType()
+        public override Type GetLeftShapeType()
         {
             if (this.Completed) return null;
-            return SimpleShape.ShapeType.Edge;
+            return typeof(Edge);
         }
 
         public override void AddShape(SimpleShape shape)
@@ -124,7 +117,7 @@ namespace Projekt1.Relations
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)
         {
-            if (shape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge)
+            if (shape.SelectedShape is Edge)
             {
                 return shape.SelectedShape.HasRelationByType(typeof(ParallelEdges))
                     ? BtnStatus.Active

@@ -23,8 +23,6 @@ namespace Projekt1.Shapes
             this.edge = new CircleEdge();
         }
 
-        public override ShapeType GetShapeType() => ShapeType.Circle;
-
         public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {
             this.center.Move(dX, dY, relationsStack, false);
@@ -46,13 +44,13 @@ namespace Projekt1.Shapes
                 bm, 
                 this.center.GetPoint, 
                 this.R,
-                DrawHelper.GetNormalColor(this.SelectedShape?.GetShapeType() == ShapeType.CircleEdge)
+                DrawHelper.GetNormalColor(this.SelectedShape is CircleEdge)
             );
 
             if (Completed)
             {
                 e.Graphics.FillEllipse(
-                    new SolidBrush(DrawHelper.GetFillColor(this.SelectedShape?.GetShapeType() == ShapeType.Circle)),
+                    new SolidBrush(DrawHelper.GetFillColor(this.SelectedShape is Circle)),
                     new Rectangle(
                         this.center.X - this.R,
                         this.center.Y - this.R,
@@ -64,7 +62,7 @@ namespace Projekt1.Shapes
 
             int radius = 5;
             e.Graphics.FillEllipse(
-                new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape?.GetShapeType() == ShapeType.CircleCenter)),
+                new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape is CircleCenter)),
                 new Rectangle(
                     center.X - radius,
                     center.Y - radius,
@@ -78,7 +76,7 @@ namespace Projekt1.Shapes
         {
             var relationsStack = RelationManager.GetRelationsStack();
 
-            if (this.SelectedShape.GetShapeType() == ShapeType.CircleEdge)
+            if (this.SelectedShape is CircleEdge)
                 this.SetR((int)DrawHelper.PointsDistance(this.center.GetPoint, this.lastPoint));
             else
                 this.SelectedShape.Move(dX, dY, relationsStack);
@@ -112,17 +110,16 @@ namespace Projekt1.Shapes
         {
             var text = $"Circle | startPoint {this.center.ToString()} | R = {this.R}";
 
-            switch (this.SelectedShape?.GetShapeType())
+            if (this.SelectedShape != null)
             {
-                case ShapeType.Circle:
+                Type selectedShapeType = this.SelectedShape.GetType();
+
+                if (selectedShapeType == typeof(Circle))
                     text += " | Selected whole shape";
-                    break;
-                case ShapeType.CircleEdge:
+                else if (selectedShapeType == typeof(CircleEdge))
                     text += " | Selected circle edge";
-                    break;
-                case ShapeType.CircleCenter:
+                else
                     text += " | Selected center";
-                    break;
             }
 
             return text;

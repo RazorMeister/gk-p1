@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Projekt1.Properties;
@@ -40,7 +39,7 @@ namespace Projekt1.Relations
 
             // Edges has one common vertex
             if (
-                movingShape?.GetShapeType() == SimpleShape.ShapeType.Edge
+                movingShape is Edge
                 && (vertexToMove == ((Edge)movingShape).VertexA || vertexToMove == ((Edge)movingShape).VertexB)
             )
             {
@@ -80,15 +79,11 @@ namespace Projekt1.Relations
         {
             if (!this.Completed) return;
 
-            var icon = new Icon(Resources.SameSizeEdgesRelation, 20, 20);
-
             var firstMiddlePoint = this.firstEdge.GetMiddlePoint();
-            e.Graphics.DrawIcon(icon, firstMiddlePoint.X - 18, firstMiddlePoint.Y - 18);
-            this.DrawId(e, firstMiddlePoint.X - 3, firstMiddlePoint.Y - 18);
+            this.DrawIcon(e, Resources.SameSizeEdgesRelation, firstMiddlePoint.X - 18, firstMiddlePoint.Y - 18);
 
             var secondMiddlePoint = this.secondEdge.GetMiddlePoint();
-            e.Graphics.DrawIcon(icon, secondMiddlePoint.X - 18, secondMiddlePoint.Y - 18);
-            this.DrawId(e, secondMiddlePoint.X - 3, secondMiddlePoint.Y - 18);
+            this.DrawIcon(e, Resources.SameSizeEdgesRelation, secondMiddlePoint.X - 18, secondMiddlePoint.Y - 18);
         }
 
         public override void Destroy()
@@ -98,10 +93,10 @@ namespace Projekt1.Relations
             base.Destroy();
         }
 
-        public override SimpleShape.ShapeType? GetLeftShapeType()
+        public override Type GetLeftShapeType()
         {
             if (this.Completed) return null;
-            return SimpleShape.ShapeType.Edge;
+            return typeof(Edge);
         }
 
         public override void AddShape(SimpleShape shape)
@@ -134,7 +129,7 @@ namespace Projekt1.Relations
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)
         {
-            if (shape.SelectedShape.GetShapeType() == SimpleShape.ShapeType.Edge)
+            if (shape.SelectedShape is Edge)
             {
                 return shape.SelectedShape.HasRelationByType(typeof(SameSizeEdges))
                     ? BtnStatus.Active

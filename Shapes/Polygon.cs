@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -11,8 +10,6 @@ namespace Projekt1.Shapes
 {
     class Polygon : AdvancedShape
     {
-        public override ShapeType GetShapeType() => ShapeType.Polygon;
-
         public SortedDictionary<int, Edge> Edges { get; private set; } = new SortedDictionary<int, Edge>();
         public SortedDictionary<int, Vertex> Vertices { get; private set; } = new SortedDictionary<int, Vertex>();
 
@@ -73,7 +70,7 @@ namespace Projekt1.Shapes
                 {
                     e.Graphics.FillPolygon(
                         new SolidBrush(
-                            DrawHelper.GetFillColor(this.SelectedShape?.GetShapeType() == ShapeType.Polygon)),
+                            DrawHelper.GetFillColor(this.SelectedShape is Polygon)),
                         points.ToArray()
                     );
                 }
@@ -90,7 +87,7 @@ namespace Projekt1.Shapes
                 try
                 {
                     e.Graphics.FillEllipse(
-                        new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape?.Uid == vertex.Uid)),
+                        new SolidBrush(DrawHelper.GetNormalColor(this.SelectedShape == vertex)),
                         new Rectangle(
                             vertex.X - radius,
                             vertex.Y - radius,
@@ -111,7 +108,7 @@ namespace Projekt1.Shapes
                     bm, 
                     edge.VertexA.GetPoint, 
                     edge.VertexB.GetPoint, 
-                    DrawHelper.GetNormalColor(this.SelectedShape?.Uid == edge.Uid)
+                    DrawHelper.GetNormalColor(this.SelectedShape == edge)
                 );
             }
 
@@ -174,12 +171,12 @@ namespace Projekt1.Shapes
 
         public void AddVertexOnEdge()
         {
-            if (this.SelectedShape.GetShapeType() != ShapeType.Edge) return;
+            if (this.SelectedShape is not Edge) return;
 
             // Remove edge relations
             this.SelectedShape.DestroyRelations();
 
-            var currentEdgeIndex = this.Edges.First((edge) => edge.Value.Uid == this.SelectedShape.Uid).Key;
+            var currentEdgeIndex = this.Edges.First((edge) => edge.Value == this.SelectedShape).Key;
 
             var currentEdge = (Edge) this.SelectedShape;
             var vertexA = currentEdge.VertexA;
@@ -187,7 +184,7 @@ namespace Projekt1.Shapes
 
             // Sanitize vertices dictionary
             var newVertices = new SortedDictionary<int, Vertex>();
-            int newVertexIndex = this.Vertices.First((vertex) => vertex.Value.Uid == currentEdge.VertexA.Uid).Key + 1;
+            int newVertexIndex = this.Vertices.First((vertex) => vertex.Value == currentEdge.VertexA).Key + 1;
 
             foreach (var vertex in this.Vertices)
             {
@@ -224,9 +221,9 @@ namespace Projekt1.Shapes
 
         public void RemoveCurrentVertex()
         {
-            if (this.SelectedShape.GetShapeType() != ShapeType.Vertex || this.Vertices.Count <= 3) return;
+            if (this.SelectedShape is not Vertex || this.Vertices.Count <= 3) return;
 
-            int selectedShapeIndex = this.Vertices.First((vertex) => vertex.Value.Uid == this.SelectedShape.Uid).Key;
+            int selectedShapeIndex = this.Vertices.First((vertex) => vertex.Value == this.SelectedShape).Key;
             this.Vertices.Remove(selectedShapeIndex);
 
             // Remove relations from edges with specified vertex
@@ -235,7 +232,7 @@ namespace Projekt1.Shapes
                     edge.DestroyRelations();
 
             var edgeWithSelectedVertexAsFirst =
-                this.Edges.First((edge) => edge.Value.VertexA.Uid == this.SelectedShape.Uid);
+                this.Edges.First((edge) => edge.Value.VertexA == this.SelectedShape);
 
             int edgeBeforeKey = edgeWithSelectedVertexAsFirst.Key > 1 ? edgeWithSelectedVertexAsFirst.Key - 1 : this.Edges.Count;
 
@@ -283,21 +280,16 @@ namespace Projekt1.Shapes
 
             if (this.SelectedShape != null)
             {
-                switch (this.SelectedShape.GetShapeType())
-                {
-                    case ShapeType.Vertex:
-                        text += $" | Selected vertex {this.SelectedShape.ToString()}";
-                        break;
-                    case ShapeType.Edge:
-                        text += $" | Selected edge {this.SelectedShape.ToString()}";
-                        break;
-                    case ShapeType.Polygon:
-                        text += " | Selected whole polygon";
-                        break;
-                }
+                Type selectedShapeType = this.SelectedShape.GetType();
+
+                if (selectedShapeType == typeof(Vertex))
+                    text += $" | Selected vertex {this.SelectedShape.ToString()}";
+                else if (selectedShapeType == typeof(Edge))
+                    text += $" | Selected edge {this.SelectedShape.ToString()}";
+                else
+                    text += " | Selected whole polygon";
             }
 
-            //return text + this.GetRelationsString();
             return text;
         }
 
@@ -317,6 +309,7 @@ namespace Projekt1.Shapes
         /* Destroying */
         public override void Destroy()
         {
+            // Destroy only edges because only edges has relations
             foreach (var edge in this.Edges.Values)
                 edge.Destroy();
 

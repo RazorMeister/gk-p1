@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Projekt1
 {
     public static class DrawHelper
     {
         public const int DISTANCE = 20;
+
         public static void DrawLine(Bitmap bm, Point p1, Point p2, Color? colorParam = null)
         {
             Color color = colorParam ?? Color.Black;
@@ -20,7 +17,6 @@ namespace Projekt1
             int x2 = p2.X;
             int y2 = p2.Y;
 
-            // zmienne pomocnicze
             int d, dx, dy, ai, bi, xi, yi;
             int x = x1, y = y1;
 

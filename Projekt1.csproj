@@ -56,6 +56,10 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormButtonHandlers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Interfaces\IDrawable.cs" />
     <Compile Include="Prompt.cs" />
     <Compile Include="Relations\CannotMoveException.cs" />
     <Compile Include="Relations\CircleTangency.cs" />
@@ -124,5 +128,6 @@
   <ItemGroup>
     <None Include="Resources\SameSizeEdgesRelation.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

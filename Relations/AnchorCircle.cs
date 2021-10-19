@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Projekt1.Properties;
 using Projekt1.Shapes;
@@ -34,18 +31,17 @@ namespace Projekt1.Relations
 
         public override void Draw(Bitmap bm, PaintEventArgs e)
         {
-            e.Graphics.DrawIcon(
-                new Icon(Resources.AnchorCircleRelation, 20, 20), 
+            this.DrawIcon(
+                e,
+                Resources.AnchorCircleRelation, 
                 this.circle.center.X - 35, 
                 this.circle.center.Y - 8
             );
-
-            this.DrawId(e, this.circle.center.X - 20, this.circle.center.Y - 8);
         }
 
         public static BtnStatus RelationBtnStatus(AdvancedShape shape)
         {
-            return shape.GetShapeType() == SimpleShape.ShapeType.Circle 
+            return shape is Circle 
                 ? (shape.HasRelationByType(typeof(AnchorCircle)) ? BtnStatus.Active : BtnStatus.Enabled)
                 : BtnStatus.Disabled;
         }

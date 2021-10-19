@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Projekt1.Relations;
 
 namespace Projekt1.Shapes
@@ -35,8 +31,6 @@ namespace Projekt1.Shapes
                 this.vertexB?.AddEdge(this);
             }
         }
-
-        public override ShapeType GetShapeType() => ShapeType.Edge;
 
         public override void Move(int dX, int dY, Stack<Tuple<Relation, SimpleShape>> relationsStack, bool addRelationsToFix = true)
         {

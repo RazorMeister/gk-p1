@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using Projekt1.Interfaces;
 using Projekt1.Relations;
 
 namespace Projekt1.Shapes
 {
-    abstract class AdvancedShape : SimpleShape
+    abstract class AdvancedShape : SimpleShape, IDrawable
     {
         public bool Completed { get; protected set; }
         protected Point lastPoint;
@@ -20,10 +20,12 @@ namespace Projekt1.Shapes
 
         public virtual void UpdateLastPoint(Point p) => this.lastPoint = p;
 
+
         /* Drawing */
         public abstract void Draw(Bitmap bm, PaintEventArgs e);
 
         public virtual void FinishDrawing() => this.Completed = true;
+
 
         /* Selecting */
         public abstract Tuple<SimpleShape, double> GetNearestShape(Point p);
@@ -33,6 +35,7 @@ namespace Projekt1.Shapes
         public virtual void SelectShape(SimpleShape shape) => this.SelectedShape = shape;
 
         public virtual void DeselectShape() => this.SelectedShape = null;
+
 
         /* Moving */
         public virtual void StartMoving(Point p)
@@ -64,9 +67,5 @@ namespace Projekt1.Shapes
             => this.relations
                 .FindAll(relation => relation.GetType() != exceptType)
                 .ForEach(relation => relationsStack.Push(new Tuple<Relation, SimpleShape>(relation, this.SelectedShape)));
-    }
-
-    internal class Uid
-    {
     }
 }

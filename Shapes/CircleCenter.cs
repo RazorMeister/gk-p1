@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Projekt1.Relations;
+﻿using System.Drawing;
 
 namespace Projekt1.Shapes
 {
     class CircleCenter : Vertex
     {
         public CircleCenter(Point p) : base(p) {}
-
-        public override ShapeType GetShapeType() => ShapeType.CircleCenter;
     }
 }
