@@ -20,7 +20,7 @@ namespace Projekt1
             int d, dx, dy, ai, bi, xi, yi;
             int x = x1, y = y1;
 
-            // ustalenie kierunku rysowania
+            // Set direction of drawing
             if (x1 < x2)
             {
                 xi = 1;
@@ -31,7 +31,8 @@ namespace Projekt1
                 xi = -1;
                 dx = x1 - x2;
             }
-            // ustalenie kierunku rysowania
+
+            // Set direction of drawing
             if (y1 < y2)
             {
                 yi = 1;
@@ -42,19 +43,19 @@ namespace Projekt1
                 yi = -1;
                 dy = y1 - y2;
             }
-            // pierwszy piksel
+
+            // First pixel
             SetPixel(bm, x, y, color);
 
-            // oś wiodąca OX
+            // OX
             if (dx > dy)
             {
                 ai = (dy - dx) * 2;
                 bi = dy * 2;
                 d = bi - dx;
-                // pętla po kolejnych x
+
                 while (x != x2)
                 {
-                    // test współczynnika
                     if (d >= 0)
                     {
                         x += xi;
@@ -69,16 +70,16 @@ namespace Projekt1
                     SetPixel(bm, x, y, color);
                 }
             }
-            // oś wiodąca OY
+
+            // OY
             else
             {
                 ai = (dx - dy) * 2;
                 bi = dx * 2;
                 d = bi - dy;
-                // pętla po kolejnych y
+               
                 while (y != y2)
                 {
-                    // test współczynnika
                     if (d >= 0)
                     {
                         x += xi;
