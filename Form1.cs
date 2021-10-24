@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -105,8 +104,6 @@ namespace Projekt1
 
             foreach (var relationBtn in this.relationButtons)
             {
-                Debug.WriteLine(relationBtn.Key.Name + "Relation");
-
                 Icon icon = (Icon)Resources.ResourceManager.GetObject(relationBtn.Key.Name + "Relation") ?? Resources.AnchorCircleRelation;
 
                 if (icon == null)

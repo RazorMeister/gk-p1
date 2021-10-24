@@ -48,8 +48,6 @@ namespace Projekt1.Relations
                 ? (movingShape is CircleEdge ? 1 : 2)
                 : 0;
 
-            //Debug.WriteLine($"currentlyMoving: {currentlyMovingType} | hasAnchor: {this.circle.HasRelationByType(typeof(AnchorCircle))} | hasFixed: {this.circle.HasRelationByType(typeof(FixedRadius))}");
-
             if (this.circle.HasRelationByType(typeof(AnchorCircle)))
             {
                 if (
@@ -74,9 +72,6 @@ namespace Projekt1.Relations
                 moveType = 3;
             }
 
-
-            //Debug.WriteLine($"m9oveType: {moveType}");
-
             if (moveType == 3)
             {
                 double distance = this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
@@ -84,11 +79,7 @@ namespace Projekt1.Relations
             }
             else
             {
-                // Problem with it
-
                 var AB = this.edge.GetLineEquation();
-
-                var newA = -1 / AB.Item1;
 
                 double distance = this.circle.R - this.edge.GetDistanceFromPoint(this.circle.center.GetPoint);
                 double a = Math.Abs(AB.Item1); // Ignore direction of edge
@@ -103,9 +94,6 @@ namespace Projekt1.Relations
                 );
 
                 if (Math.Abs(tmpDistance) > Math.Abs(distance)) tmp = -tmp;
-
-                /*Debug.WriteLine($"tmp - {tmp} | distance - {distance} | tmpDistance - {tmpDistance}");
-                Debug.WriteLine($"v - [{(int)(tmp * a)}, {(int)(tmp * b)}]");*/
 
                 if (moveType == 2)
                 {
