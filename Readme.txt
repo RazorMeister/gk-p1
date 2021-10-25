@@ -5,6 +5,7 @@ Klawiszologia:
 
 Instrukcja obsługi:
  - Rysowanie: aby narysować wielokąt lub okrąg trzeba kliknąć w przycisk: Polygon lub Circle i zacząć rysować na bitmapie.
+ - Zaznaczanie obiektu: aby zaznaczyć obiekt (np. krawędź, wierzchołek lub cały wielokąt czy okrąg) należy na niego kliknąć lewy przyciskiem myszy. Zaznaczony obiekt zmienia kolor na czerwony.
  - Dodawanie relacji: zaznacząjąc obiekt (krawędź, wierzchołek, cały wielokąt, okrąg) podświetlą się przyciski odpowiedzialne za relacje, które mogą być nadane dla obecnie zaznaczonego elementu. Obecnie zaznaczony element podświetlany jest kolorem czerwonym. Jeśli relacja wymaga podania dwóch obiektów (np. styczność okręgu) to należy najpierw wybrać odpowiedni obiekt np. krawędź, następnie naciśnąć przycisk wybranej relacji i na końcu wybrać drugi element np. okrąg. Jeśli drugi obiekt nie będzie spełniał warunków relacji to zostanie wyświetlony odpowiedni komunikat.
  - W prawym górnym rogu bitmapy jest wyświetlany aktualny tryb aplikacji. Jeśli wyświetlany jest status "None" to można wtedy zacząć rysowanie.
  - Pod bitmapą wyświetlane są informacje dotyczące obecnie wybranego obiektu.
