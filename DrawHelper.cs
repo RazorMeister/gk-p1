@@ -23,22 +23,19 @@ namespace Projekt1
                 DrawLineAntyaliasing(bm, p1, p2, color);
         }
 
-        private static int ipart(double x) { return (int)x; }
+        private static int Ipart(double x) => (int)x;
 
-        private static int round(double x) { return ipart(x + 0.5); }
+        private static int Round(double x) => Ipart(x + 0.5);
 
-        private static double fpart(double x)
+        private static double Fpart(double x)
         {
             if (x < 0) return (1 - (x - Math.Floor(x)));
             return (x - Math.Floor(x));
         }
 
-        private static double rfpart(double x)
-        {
-            return 1 - fpart(x);
-        }
+        private static double Rfpart(double x) => 1 - Fpart(x);
 
-        private static void plot(Bitmap bm, double x, double y, double c, Color colorParam)
+        private static void Plot(Bitmap bm, double x, double y, double c, Color colorParam)
         {
             int alpha = (int)(c * 255);
             if (alpha > 255) alpha = 255;
@@ -72,46 +69,46 @@ namespace Projekt1
             double dy = y1 - y0;
             double gradient = dy / dx;
 
-            double xEnd = Math.Round(x0);
+            double xEnd = Round(x0);
             double yEnd = y0 + gradient * (xEnd - x0);
-            double xGap = rfpart(x0 + 0.5);
+            double xGap = Rfpart(x0 + 0.5);
             double xPixel1 = xEnd;
-            double yPixel1 = ipart(yEnd);
+            double yPixel1 = Ipart(yEnd);
 
             if (steep)
             {
-                plot(bm, yPixel1, xPixel1, rfpart(yEnd) * xGap, color);
-                plot(bm, yPixel1 + 1, xPixel1, fpart(yEnd) * xGap, color);
+                Plot(bm, yPixel1, xPixel1, Rfpart(yEnd) * xGap, color);
+                Plot(bm, yPixel1 + 1, xPixel1, Fpart(yEnd) * xGap, color);
             }
             else
             {
-                plot(bm, xPixel1, yPixel1, rfpart(yEnd) * xGap, color);
-                plot(bm, xPixel1, yPixel1 + 1, fpart(yEnd) * xGap, color);
+                Plot(bm, xPixel1, yPixel1, Rfpart(yEnd) * xGap, color);
+                Plot(bm, xPixel1, yPixel1 + 1, Fpart(yEnd) * xGap, color);
             }
             double intery = yEnd + gradient;
 
-            xEnd = round(x1);
+            xEnd = Round(x1);
             yEnd = y1 + gradient * (xEnd - x1);
-            xGap = fpart(x1 + 0.5);
+            xGap = Fpart(x1 + 0.5);
             double xPixel2 = xEnd;
-            double yPixel2 = ipart(yEnd);
+            double yPixel2 = Ipart(yEnd);
             if (steep)
             {
-                plot(bm, yPixel2, xPixel2, rfpart(yEnd) * xGap, color);
-                plot(bm, yPixel2 + 1, xPixel2, fpart(yEnd) * xGap, color);
+                Plot(bm, yPixel2, xPixel2, Rfpart(yEnd) * xGap, color);
+                Plot(bm, yPixel2 + 1, xPixel2, Fpart(yEnd) * xGap, color);
             }
             else
             {
-                plot(bm, xPixel2, yPixel2, rfpart(yEnd) * xGap, color);
-                plot(bm, xPixel2, yPixel2 + 1, fpart(yEnd) * xGap, color);
+                Plot(bm, xPixel2, yPixel2, Rfpart(yEnd) * xGap, color);
+                Plot(bm, xPixel2, yPixel2 + 1, Fpart(yEnd) * xGap, color);
             }
 
             if (steep)
             {
                 for (int x = (int)(xPixel1 + 1); x <= xPixel2 - 1; x++)
                 {
-                    plot(bm, ipart(intery), x, rfpart(intery), color);
-                    plot(bm, ipart(intery) + 1, x, fpart(intery), color);
+                    Plot(bm, Ipart(intery), x, Rfpart(intery), color);
+                    Plot(bm, Ipart(intery) + 1, x, Fpart(intery), color);
                     intery += gradient;
                 }
             }
@@ -119,8 +116,8 @@ namespace Projekt1
             {
                 for (int x = (int)(xPixel1 + 1); x <= xPixel2 - 1; x++)
                 {
-                    plot(bm, x, ipart(intery), rfpart(intery), color);
-                    plot(bm, x, ipart(intery) + 1, fpart(intery), color);
+                    Plot(bm, x, Ipart(intery), Rfpart(intery), color);
+                    Plot(bm, x, Ipart(intery) + 1, Fpart(intery), color);
                     intery += gradient;
                 }
             }
@@ -223,20 +220,20 @@ namespace Projekt1
                 DrawCircleAntyaliasing(bm, center, r, color);
         }
 
-        private static double distance(int x, int y)
+        private static double Distance(int x, int y)
         {
-            double real_point = Math.Sqrt(Math.Pow(x, 2) - Math.Pow(y, 2));
-            return (Math.Ceiling(real_point) - real_point);
+            double realPoint = Math.Sqrt(Math.Pow(x, 2) - Math.Pow(y, 2));
+            return (Math.Ceiling(realPoint) - realPoint);
         }
-        private static int new_color(double i)
+        private static int NewColor(double i)
         {
             return (int)Math.Round((i * 127));
         }
 
         public static void DrawCircleAntyaliasing(Bitmap bm, Point center, int r, Color color)
         {
-            int offset_x = center.X;
-            int offset_y = center.Y;
+            int offsetX = center.X;
+            int offsetY = center.Y;
             
             int x = r;
             int y = -1;
@@ -244,52 +241,52 @@ namespace Projekt1
             while (x - 1 > y)
             {
                 y++;
-                double current_distance = distance(r, y);
-                if (current_distance < t)
+                double currentDistance = Distance(r, y);
+                if (currentDistance < t)
                     x--;
 
                 //shades
-                int transparency = new_color(current_distance);
+                int transparency = NewColor(currentDistance);
                 int alpha = transparency;
                 int alpha2 = 127 - transparency;
                 Color c2 = Color.FromArgb(255, color.R, color.G, color.B);
                 Color c3 = Color.FromArgb(alpha2, color.R, color.G, color.B);
                 Color c4 = Color.FromArgb(alpha, color.R, color.G, color.B);
               
-                SetPixel(bm, x + offset_x, y + offset_y, c2);
-                SetPixel(bm, x + offset_x - 1, y + offset_y, c4);
-                SetPixel(bm, x + offset_x + 1, y + offset_y, c3);
+                SetPixel(bm, x + offsetX, y + offsetY, c2);
+                SetPixel(bm, x + offsetX - 1, y + offsetY, c4);
+                SetPixel(bm, x + offsetX + 1, y + offsetY, c3);
 
-                SetPixel(bm, y + offset_x, x + offset_y, c2);
-                SetPixel(bm, y + offset_x, x + offset_y - 1, c4);
-                SetPixel(bm, y + offset_x, x + offset_y + 1, c3);
+                SetPixel(bm, y + offsetX, x + offsetY, c2);
+                SetPixel(bm, y + offsetX, x + offsetY - 1, c4);
+                SetPixel(bm, y + offsetX, x + offsetY + 1, c3);
 
-                SetPixel(bm, offset_x - x, y + offset_y, c2);
-                SetPixel(bm, offset_x - x + 1, y + offset_y, c4);
-                SetPixel(bm, offset_x - x - 1, y + offset_y, c3);
+                SetPixel(bm, offsetX - x, y + offsetY, c2);
+                SetPixel(bm, offsetX - x + 1, y + offsetY, c4);
+                SetPixel(bm, offsetX - x - 1, y + offsetY, c3);
 
-                SetPixel(bm, offset_x - y, x + offset_y, c2);
-                SetPixel(bm, offset_x - y, x + offset_y - 1, c4);
-                SetPixel(bm, offset_x - y, x + offset_y + 1, c3);
+                SetPixel(bm, offsetX - y, x + offsetY, c2);
+                SetPixel(bm, offsetX - y, x + offsetY - 1, c4);
+                SetPixel(bm, offsetX - y, x + offsetY + 1, c3);
 
-                SetPixel(bm, x + offset_x, offset_y - y, c2);
-                SetPixel(bm, x + offset_x - 1, offset_y - y, c4);
-                SetPixel(bm, x + offset_x + 1, offset_y - y, c3);
+                SetPixel(bm, x + offsetX, offsetY - y, c2);
+                SetPixel(bm, x + offsetX - 1, offsetY - y, c4);
+                SetPixel(bm, x + offsetX + 1, offsetY - y, c3);
 
                 //UP
-                SetPixel(bm, y + offset_x, offset_y - x, c2);
-                SetPixel(bm, y + offset_x, offset_y - x + 1, c4);
-                SetPixel(bm, y + offset_x, offset_y - x - 1, c3);
+                SetPixel(bm, y + offsetX, offsetY - x, c2);
+                SetPixel(bm, y + offsetX, offsetY - x + 1, c4);
+                SetPixel(bm, y + offsetX, offsetY - x - 1, c3);
 
-                SetPixel(bm, offset_x - y, offset_y - x, c2);
-                SetPixel(bm, offset_x - y, offset_y - x + 1, c4);
-                SetPixel(bm, offset_x - y, offset_y - x - 1, c3);
+                SetPixel(bm, offsetX - y, offsetY - x, c2);
+                SetPixel(bm, offsetX - y, offsetY - x + 1, c4);
+                SetPixel(bm, offsetX - y, offsetY - x - 1, c3);
 
-                SetPixel(bm, offset_x - x, offset_y - y, c2);
-                SetPixel(bm, offset_x - x + 1, offset_y - y, c4);
-                SetPixel(bm, offset_x - x - 1, offset_y - y, c3);
+                SetPixel(bm, offsetX - x, offsetY - y, c2);
+                SetPixel(bm, offsetX - x + 1, offsetY - y, c4);
+                SetPixel(bm, offsetX - x - 1, offsetY - y, c3);
 
-                t = current_distance;
+                t = currentDistance;
             }
         }
 
