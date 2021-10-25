@@ -60,7 +60,7 @@ namespace Projekt1.Relations
             vertexToMove.GetOtherEdge(otherEdge)?.AddRelationsToStack(relationsStack);
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             if (!this.Completed) return;
 

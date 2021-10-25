@@ -80,7 +80,7 @@ namespace Projekt1.Relations
                 .AddRelationsToStack(relationsStack);
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             if (!this.Completed) return;
 

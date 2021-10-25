@@ -30,6 +30,7 @@ namespace Projekt1
 
         private Dictionary<Type, Button> relationButtons = new Dictionary<Type, Button>();
         private TwoShapesRelation almostCompletedRelation = null;
+        private DrawHelper.DrawType currDrawType = DrawHelper.DrawType.NORMAL;
 
         private Action currAction
         {
@@ -392,10 +393,10 @@ namespace Projekt1
         {
             var bm = new Bitmap(this.wrapper.Width, this.wrapper.Height);
 
-            this.shapes.ForEach(shape => shape.Draw(bm, e));
+            this.shapes.ForEach(shape => shape.Draw(bm, e, this.currDrawType));
 
             this.relations.RemoveAll(relation => relation.Destroyed);
-            this.relations.ForEach(relation => relation.Draw(bm, e));
+            this.relations.ForEach(relation => relation.Draw(bm, e, this.currDrawType));
 
             this.debugLabel.Text = this.currShape != null ? this.currShape.ToString() : "";
 
@@ -440,6 +441,15 @@ namespace Projekt1
 
                 relationBtn.Value.Enabled = btnStatus != Relation.BtnStatus.Disabled;
             }
+        }
+
+        private void antyaliasingCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            this.currDrawType = this.antyaliasingCheckbox.Checked
+                ? DrawHelper.DrawType.ANTYALIASING
+                : DrawHelper.DrawType.NORMAL;
+
+            this.wrapper.Invalidate();
         }
     }
 }

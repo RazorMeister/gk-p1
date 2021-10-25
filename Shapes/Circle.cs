@@ -38,12 +38,13 @@ namespace Projekt1.Shapes
             this.R = Math.Max(MIN_R, r);
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             DrawHelper.DrawCircle(
                 bm, 
                 this.center.GetPoint, 
                 this.R,
+                drawType,
                 DrawHelper.GetNormalColor(this.SelectedShape is CircleEdge)
             );
 

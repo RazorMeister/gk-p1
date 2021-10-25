@@ -10,6 +10,6 @@ namespace Projekt1.Interfaces
 {
     interface IDrawable
     {
-        public void Draw(Bitmap bm, PaintEventArgs e);
+        public void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType);
     }
 }

@@ -108,7 +108,7 @@ namespace Projekt1.Relations
             }
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             if (!this.Completed) return;
 

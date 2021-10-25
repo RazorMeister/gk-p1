@@ -29,7 +29,7 @@ namespace Projekt1.Relations
 
         public abstract void FixRelation(SimpleShape movingShape, Stack<Tuple<Relation, SimpleShape>> relationsStack);
 
-        public abstract void Draw(Bitmap bm, PaintEventArgs e);
+        public abstract void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType);
 
         protected void DrawIcon(PaintEventArgs e, Icon icon, int x, int y)
         {

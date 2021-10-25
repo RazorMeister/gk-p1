@@ -22,7 +22,7 @@ namespace Projekt1.Shapes
 
 
         /* Drawing */
-        public abstract void Draw(Bitmap bm, PaintEventArgs e);
+        public abstract void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType);
 
         public virtual void FinishDrawing() => this.Completed = true;
 

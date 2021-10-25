@@ -56,7 +56,7 @@ namespace Projekt1.Shapes
             }
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             // If polygon if closed (completed), fill it with some color 
             if (this.Completed)
@@ -107,7 +107,8 @@ namespace Projekt1.Shapes
                 DrawHelper.DrawLine(
                     bm, 
                     edge.VertexA.GetPoint, 
-                    edge.VertexB.GetPoint, 
+                    edge.VertexB.GetPoint,
+                    drawType,
                     DrawHelper.GetNormalColor(this.SelectedShape == edge)
                 );
             }
@@ -171,7 +172,7 @@ namespace Projekt1.Shapes
 
         public void AddVertexOnEdge()
         {
-            if (this.SelectedShape is not Edge) return;
+            if (!(this.SelectedShape is Edge)) return;
 
             // Remove edge relations
             this.SelectedShape.DestroyRelations();
@@ -221,7 +222,7 @@ namespace Projekt1.Shapes
 
         public void RemoveCurrentVertex()
         {
-            if (this.SelectedShape is not Vertex || this.Vertices.Count <= 3) return;
+            if (!(this.SelectedShape is Vertex) || this.Vertices.Count <= 3) return;
 
             int selectedShapeIndex = this.Vertices.First((vertex) => vertex.Value == this.SelectedShape).Key;
             this.Vertices.Remove(selectedShapeIndex);

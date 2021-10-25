@@ -29,7 +29,7 @@ namespace Projekt1.Relations
             this.circle.center.SetPoint(this.startPoint);
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             this.DrawIcon(
                 e,

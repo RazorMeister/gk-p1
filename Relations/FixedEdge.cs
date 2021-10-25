@@ -58,7 +58,7 @@ namespace Projekt1.Relations
             vertexToMove.GetOtherEdge(this.edge).AddRelationsToStack(relationsStack);
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             var middlePoint = this.edge.GetMiddlePoint();
             this.DrawIcon(

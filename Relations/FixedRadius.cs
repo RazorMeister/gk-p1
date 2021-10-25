@@ -30,7 +30,7 @@ namespace Projekt1.Relations
             this.circle.SetR(this.r);
         }
 
-        public override void Draw(Bitmap bm, PaintEventArgs e)
+        public override void Draw(Bitmap bm, PaintEventArgs e, DrawHelper.DrawType drawType)
         {
             this.DrawIcon(
                 e,
